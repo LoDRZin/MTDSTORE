@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Backend Laravel (PHP-FPM)
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mtdstore_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - mtdstore-network
+    depends_on:
+      - db
+      - redis
+
+  # Web Server (Nginx) para servir o PHP
+  webserver:
+    image: nginx:alpine
+    container_name: mtdstore_webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - mtdstore-network
+    depends_on:
+      - app
+
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: mtdstore_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-mtdstore}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - mtdstore-network
+
+  # Redis para Cache e Fila
+  redis:
+    image: redis:alpine
+    container_name: mtdstore_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mtdstore-network
+
+  # Queue Worker Laravel
+  queue-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mtdstore_queue_worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3 --timeout=90
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - mtdstore-network
+    depends_on:
+      - app
+      - redis
+      - db
+
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mtdstore_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - mtdstore-network
+    # Assumindo que você inicializará o Next.js e terá o script 'dev'
+    command: npm run dev
+
+networks:
+  mtdstore-network:
+    driver: bridge
+
+volumes:
+  db-data:
+  redis-data:
