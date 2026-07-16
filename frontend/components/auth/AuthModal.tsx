@@ -160,7 +160,7 @@ export default function AuthModal() {
                 <input
                   type="email"
                   required
-                  placeholder="Seu melhor e-mail"
+                  placeholder="e-mail"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-surface-900 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-brand-500 transition-colors"
@@ -175,7 +175,7 @@ export default function AuthModal() {
                 <input
                   type="password"
                   required
-                  placeholder="Senha secreta"
+                  placeholder="*****"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-surface-900 border border-white/10 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-brand-500 transition-colors"
