@@ -22,8 +22,9 @@ export default function CouponInput() {
 
     try {
       const productIds = items.map((i) => i.id);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
-      const res = await fetch("http://localhost:8000/api/v1/coupon/validate", {
+      const res = await fetch(`${apiUrl}/coupon/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

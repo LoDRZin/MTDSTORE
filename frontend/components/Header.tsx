@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
+import Image from "next/image";
 import CartSidebar from "./CartSidebar";
 import { ShoppingCart, X, Zap, User, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -115,7 +116,7 @@ export default function Header() {
               <div className="relative group/user">
                 <button className="flex items-center gap-2 p-2 rounded-full border border-white/10 hover:border-brand-500/50 bg-surface-900 transition-colors">
                   {user.avatar ? (
-                    <img src={user.avatar} alt="Avatar" className="w-7 h-7 rounded-full" />
+                    <Image src={user.avatar} alt="Avatar" width={28} height={28} className="rounded-full" />
                   ) : (
                     <div className="w-7 h-7 rounded-full bg-brand-600/20 text-brand-500 flex items-center justify-center text-xs font-bold">
                       {user.name.charAt(0).toUpperCase()}

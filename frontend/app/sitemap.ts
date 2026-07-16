@@ -6,7 +6,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all products to include in sitemap
   let products: { slug: string; updated_at?: string }[] = [];
   try {
-    const res = await fetch('http://localhost:8000/api/v1/products', { next: { revalidate: 3600 } });
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    const res = await fetch(`${apiUrl}/products`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const data = await res.json();
       products = data.data || [];

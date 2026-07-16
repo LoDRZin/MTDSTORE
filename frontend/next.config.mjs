@@ -4,7 +4,13 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig = {
   // Optimize images from external sources if needed
   images: {
-    remotePatterns: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+    ],
   },
 };
 

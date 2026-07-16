@@ -46,7 +46,8 @@ export default function CheckoutPage() {
         items: items.map(i => ({ product_id: i.id, quantity: i.quantity }))
       };
       
-      const res = await fetch("http://localhost:8000/api/v1/checkout", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const res = await fetch(`${apiUrl}/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)

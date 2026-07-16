@@ -48,8 +48,10 @@ export const useAuthStore = create<AuthState>()(
         const localItems = cartState.items;
 
         try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+          
           // Primeiro, tenta carregar o carrinho do servidor
-          const res = await fetch("http://localhost:8000/api/v1/cart/load", {
+          const res = await fetch(`${apiUrl}/cart/load`, {
             headers: {
               Authorization: `Bearer ${token}`,
               Accept: "application/json",
@@ -66,7 +68,7 @@ export const useAuthStore = create<AuthState>()(
               cartState.setItems(serverItems);
             } else if (localItems.length > 0) {
               // Se temos itens locais, enviamos para o backend para salvar
-              await fetch("http://localhost:8000/api/v1/cart/sync", {
+              await fetch(`${apiUrl}/cart/sync`, {
                 method: "POST",
                 headers: {
                   Authorization: `Bearer ${token}`,

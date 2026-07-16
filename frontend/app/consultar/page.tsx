@@ -32,7 +32,9 @@ export default function LookupPage() {
     setOrder(null);
     
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/orders/${uuid}/lookup`);
+      setLoading(true);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const res = await fetch(`${apiUrl}/orders/${uuid}/lookup`);
       const data = await res.json();
       
       if (!res.ok) {

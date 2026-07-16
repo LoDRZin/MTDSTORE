@@ -20,7 +20,8 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     if (searchParams.max_price) params.append("max_price", String(searchParams.max_price));
     if (searchParams.in_stock) params.append("in_stock", String(searchParams.in_stock));
 
-    const res = await fetch(`http://localhost:8000/api/v1/products?${params.toString()}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
       next: { revalidate: 300, tags: ['products'] },
     });
     if (!res.ok) throw new Error("Failed to fetch products");
@@ -33,7 +34,8 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
 
 async function getCategories() {
   try {
-    const res = await fetch("http://localhost:8000/api/v1/categories", {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    const res = await fetch(`${apiUrl}/categories`, {
       next: { revalidate: 3600, tags: ["categories"] },
     });
     if (!res.ok) throw new Error("Failed to fetch categories");

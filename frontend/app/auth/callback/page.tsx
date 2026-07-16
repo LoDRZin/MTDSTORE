@@ -17,8 +17,8 @@ function CallbackContent() {
       try {
         const user = JSON.parse(atob(userStr)) as UserProfile;
         login(token, user);
-      } catch (e) {
-        console.error("Falha ao parsear os dados do usuário do Google");
+      } catch (error) {
+        console.error("Falha ao parsear os dados do usuário do Google", error);
       }
     }
     

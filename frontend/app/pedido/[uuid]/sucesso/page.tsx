@@ -25,7 +25,8 @@ export default function SuccessPage({ params }: { params: { uuid: string } }) {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/orders/${params.uuid}/lookup`);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+        const res = await fetch(`${apiUrl}/orders/${params.uuid}/lookup`);
         const data = await res.json();
         
         if (!res.ok) {
