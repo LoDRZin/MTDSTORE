@@ -5,7 +5,7 @@ import { useState } from "react";
 import { X, Mail, Lock, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PremiumButton from "../ui/PremiumButton";
-import { apiFetch, apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 export default function AuthModal() {
   const { isAuthModalOpen, setAuthModalOpen, login } = useAuthStore();
