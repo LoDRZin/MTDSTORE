@@ -77,6 +77,16 @@ class ProcessPaymentWebhook implements ShouldQueue
 
                     $order->update(['status' => 'paid']);
                     
+                    // Redeem coupon if exists
+                    if ($order->coupon_id && $order->coupon) {
+                        try {
+                            $couponService = app(\App\Services\CouponService::class);
+                            $couponService->redeem($order->coupon);
+                        } catch (Exception $e) {
+                            Log::warning("Não foi possível redimir o cupom #{$order->coupon_id} do pedido {$order->uuid}: " . $e->getMessage());
+                        }
+                    }
+
                     // Dispatch Delivery
                     dispatch(new DeliverDigitalProduct($order));
 

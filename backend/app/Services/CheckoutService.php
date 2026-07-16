@@ -40,11 +40,14 @@ class CheckoutService
             }
 
             // 2. Criar registro do pedido
+            $coupon = $couponCode ? Coupon::where('code', $couponCode)->first() : null;
+
             $order = Order::create([
                 'uuid' => (string) Str::uuid(),
                 'customer_id' => $customer->id,
                 'status' => 'pending',
                 'total' => $cartTotalDto->total,
+                'coupon_id' => $coupon?->id,
                 // O gateway será guardado no payment logic ou em external_reference depois.
             ]);
 
@@ -75,13 +78,7 @@ class CheckoutService
                 }
             }
 
-            // 5. Redimir cupom
-            if ($couponCode) {
-                $coupon = Coupon::where('code', $couponCode)->first();
-                if ($coupon) {
-                    $this->couponService->redeem($coupon);
-                }
-            }
+            // 5. Cupom já associado ao pedido. Será redimido no webhook.
 
             // 6. Aqui seria o disparo do Job de Pagamento
             // dispatch(new \App\Jobs\ProcessPaymentJob($order, $gateway));

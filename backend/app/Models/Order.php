@@ -14,6 +14,7 @@ class Order extends Model
         'status',
         'total',
         'external_reference',
+        'coupon_id',
     ];
 
     protected $casts = [
@@ -28,5 +29,10 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 }
