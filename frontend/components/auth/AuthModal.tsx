@@ -5,6 +5,7 @@ import { useState } from "react";
 import { X, Mail, Lock, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PremiumButton from "../ui/PremiumButton";
+import { apiFetch, apiUrl } from "@/lib/api";
 
 export default function AuthModal() {
   const { isAuthModalOpen, setAuthModalOpen, login } = useAuthStore();
@@ -25,45 +26,20 @@ export default function AuthModal() {
     setError("");
 
     try {
-      const path = mode === "login" ? "/api/v1/login" : "/api/v1/register";
+      const path = mode === "login" ? "/login" : "/register";
       const payload =
         mode === "login"
           ? { email, password }
           : { email, password, name, password_confirmation: passwordConfirmation };
 
-      // Use absolute URL to work on both localhost and Vercel
-      const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-      const res = await fetch(`${baseUrl}${path}`, {
+      const data = await apiFetch<{ access_token: string; user: Parameters<typeof login>[1] }>(path, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        let errorMessage = "Erro de autenticação";
-        if (data.error?.details) {
-          const firstDetail = Object.values(data.error.details)[0];
-          if (Array.isArray(firstDetail)) errorMessage = firstDetail[0];
-        } else if (data.error?.message) {
-          errorMessage = data.error.message;
-        } else if (data.message) {
-          errorMessage = data.message;
-        }
-        throw new Error(errorMessage);
-      }
-
       login(data.access_token, data.user);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Ocorreu um erro ao conectar.");
-      }
+      setError(err instanceof Error ? err.message : "Ocorreu um erro ao conectar.");
     } finally {
       setLoading(false);
     }
@@ -71,9 +47,7 @@ export default function AuthModal() {
 
   const handleGoogleLogin = async () => {
     try {
-      const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-      const res = await fetch(`${baseUrl}/api/v1/auth/google/url`);
-      const data = await res.json();
+      const data = await apiFetch<{ url: string }>("/auth/google/url");
       if (data.url) {
         window.location.href = data.url;
       }

@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { Tag, Loader2, XCircle, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiFetch } from "@/lib/api";
 
 export default function CouponInput() {
   const { items, coupon, applyCoupon, removeCoupon } = useCartStore();
@@ -22,11 +23,9 @@ export default function CouponInput() {
 
     try {
       const productIds = items.map((i) => i.id);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
-      const res = await fetch(`${apiUrl}/coupon/validate`, {
+      const data = await apiFetch<{ code: string; discount: number; type: string }>("/coupon/validate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: code.trim(),
           order_total: orderTotal,
@@ -34,17 +33,7 @@ export default function CouponInput() {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error?.message || "Erro ao validar cupom.");
-      }
-
-      applyCoupon({
-        code: data.code,
-        discount: data.discount,
-        type: data.type,
-      });
+      applyCoupon({ code: data.code, discount: data.discount, type: data.type });
       setCode("");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useCartStore } from "./cart";
+import { apiFetch } from "@/lib/api";
 
 export interface UserProfile {
   id: number;
@@ -48,36 +49,17 @@ export const useAuthStore = create<AuthState>()(
         const localItems = cartState.items;
 
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-          
-          // Primeiro, tenta carregar o carrinho do servidor
-          const res = await fetch(`${apiUrl}/cart/load`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          });
+          const data = await apiFetch<{ cart_data: typeof localItems }>("/cart/load", { token });
+          const serverItems = data.cart_data || [];
 
-          if (res.ok) {
-            const data = await res.json();
-            const serverItems = data.cart_data || [];
-
-            // Se o carrinho local estiver vazio, carrega o do servidor.
-            // Se o carrinho local tiver itens, vamos mesclar (local prevalece).
-            if (localItems.length === 0 && serverItems.length > 0) {
-              cartState.setItems(serverItems);
-            } else if (localItems.length > 0) {
-              // Se temos itens locais, enviamos para o backend para salvar
-              await fetch(`${apiUrl}/cart/sync`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                  Accept: "application/json",
-                },
-                body: JSON.stringify({ cart_data: localItems }),
-              });
-            }
+          if (localItems.length === 0 && serverItems.length > 0) {
+            cartState.setItems(serverItems);
+          } else if (localItems.length > 0) {
+            await apiFetch("/cart/sync", {
+              method: "POST",
+              token,
+              body: JSON.stringify({ cart_data: localItems }),
+            });
           }
         } catch (e) {
           console.error("Falha ao sincronizar o carrinho:", e);

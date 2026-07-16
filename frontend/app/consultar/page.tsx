@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import SectionContainer from "@/components/ui/SectionContainer";
 import PremiumButton from "@/components/ui/PremiumButton";
 import { Search, KeyRound, CheckCircle2, Copy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiFetch } from "@/lib/api";
 
 interface OrderData {
   uuid: string;
@@ -33,13 +34,7 @@ export default function LookupPage() {
     
     try {
       setLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-      const res = await fetch(`${apiUrl}/orders/${uuid}/lookup`);
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.message || "Pedido nÃ£o encontrado");
-      }
+      const data = await apiFetch<{ order?: { uuid: string; status: string; total: number; items: Array<{ product_name: string; key?: string }> } }>(`/orders/${uuid}/lookup`);
       
       setOrder({
         uuid: data.order?.uuid || uuid,

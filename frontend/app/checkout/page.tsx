@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
@@ -9,6 +9,7 @@ import PremiumButton from "@/components/ui/PremiumButton";
 import SectionContainer from "@/components/ui/SectionContainer";
 import { ShieldCheck, Mail, CreditCard, QrCode, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
+import { apiFetch } from "@/lib/api";
 
 export default function CheckoutPage() {
   const { items, clearCart, coupon } = useCartStore();
@@ -46,18 +47,10 @@ export default function CheckoutPage() {
         items: items.map(i => ({ product_id: i.id, quantity: i.quantity }))
       };
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-      const res = await fetch(`${apiUrl}/checkout`, {
+      const data = await apiFetch<{ order: { uuid: string } }>("/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)
       });
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error?.message || data.message || "Erro ao processar checkout");
-      }
       
       const uuid = data.order.uuid;
       
