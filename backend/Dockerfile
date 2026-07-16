@@ -24,8 +24,8 @@ WORKDIR /var/www
 # Copia os arquivos do projeto
 COPY . .
 
-# Instala dependências do Composer para produção
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# Instala dependências do Composer para produção (ignorando versão do PHP do lockfile local)
+RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
 
 # Ajusta permissões do storage
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
