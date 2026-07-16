@@ -44,7 +44,16 @@ export default function AuthModal() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Erro de autenticação");
+        let errorMessage = "Erro de autenticação";
+        if (data.error?.details) {
+          const firstDetail = Object.values(data.error.details)[0];
+          if (Array.isArray(firstDetail)) errorMessage = firstDetail[0];
+        } else if (data.error?.message) {
+          errorMessage = data.error.message;
+        } else if (data.message) {
+          errorMessage = data.message;
+        }
+        throw new Error(errorMessage);
       }
 
       login(data.access_token, data.user);
