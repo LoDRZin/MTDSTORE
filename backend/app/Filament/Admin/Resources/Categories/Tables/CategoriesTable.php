@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Products\Tables;
+namespace App\Filament\Admin\Resources\Categories\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class ProductsTable
+class CategoriesTable
 {
     public static function configure(Table $table): Table
     {
@@ -19,11 +20,14 @@ class ProductsTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
-                TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('status')
+                ImageColumn::make('image_url'),
+                TextColumn::make('parent.name')
                     ->searchable(),
+                TextColumn::make('order')
+                    ->numeric()
+                    ->sortable(),
+                IconColumn::make('is_active')
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -32,7 +36,6 @@ class ProductsTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                ImageColumn::make('image_url'),
             ])
             ->filters([
                 //

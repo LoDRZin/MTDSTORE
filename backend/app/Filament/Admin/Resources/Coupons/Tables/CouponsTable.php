@@ -2,9 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Coupons\Tables;
 
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -18,7 +18,7 @@ class CouponsTable
                 TextColumn::make('code')
                     ->searchable(),
                 TextColumn::make('type')
-                    ->badge(),
+                    ->searchable(),
                 TextColumn::make('value')
                     ->numeric()
                     ->sortable(),
@@ -41,6 +41,12 @@ class CouponsTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('min_order_value')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('max_discount_value')
+                    ->numeric()
+                    ->sortable(),
             ])
             ->filters([
                 //

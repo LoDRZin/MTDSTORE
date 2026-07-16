@@ -16,24 +16,4 @@ class EditProduct extends EditRecord
             DeleteAction::make(),
         ];
     }
-
-    protected function afterSave(): void
-    {
-        $keys = $this->data['bulk_keys'] ?? null;
-
-        if ($keys) {
-            $inventoryService = app(\App\Services\InventoryService::class);
-            
-            // Apenas repassa a string para o Service, que faz o split e trim
-            $count = $inventoryService->bulkImportKeys($this->record, $keys, auth()->id());
-            
-            if ($count > 0) {
-                \Filament\Notifications\Notification::make()
-                    ->title('Chaves importadas')
-                    ->body($count . ' chaves foram adicionadas com sucesso ao estoque.')
-                    ->success()
-                    ->send();
-            }
-        }
-    }
 }

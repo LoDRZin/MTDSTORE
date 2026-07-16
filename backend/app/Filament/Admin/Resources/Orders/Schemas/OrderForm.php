@@ -14,39 +14,16 @@ class OrderForm
             ->components([
                 TextInput::make('uuid')
                     ->label('UUID')
-                    ->disabled(),
+                    ->required(),
                 Select::make('customer_id')
-                    ->relationship('customer', 'name')
-                    ->disabled(),
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'awaiting_payment' => 'Awaiting payment',
-                        'paid' => 'Paid',
-                        'failed' => 'Failed',
-                        'refunded' => 'Refunded',
-                        'canceled' => 'Canceled',
-                    ])
-                    ->disabled(),
+                    ->relationship('customer', 'name'),
+                TextInput::make('status')
+                    ->required()
+                    ->default('pending'),
                 TextInput::make('total')
-                    ->numeric()
-                    ->prefix('$')
-                    ->disabled(),
-                TextInput::make('external_reference')
-                    ->disabled(),
-                \Filament\Forms\Components\Repeater::make('items')
-                    ->relationship('items')
-                    ->schema([
-                        \Filament\Forms\Components\Select::make('product_id')
-                            ->relationship('product', 'name')
-                            ->disableOptionWhen(fn() => true),
-                        \Filament\Forms\Components\TextInput::make('unit_price')
-                            ->prefix('$'),
-                        \Filament\Forms\Components\TextInput::make('stock_item_id')
-                            ->label('Stock ID')
-                    ])
-                    ->columnSpanFull()
-                    ->disabled(),
+                    ->required()
+                    ->numeric(),
+                TextInput::make('external_reference'),
             ]);
     }
 }
