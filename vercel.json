@@ -5,8 +5,7 @@
       "framework": "nextjs"
     },
     "backend": {
-      "root": "backend",
-      "framework": "other"
+      "root": "backend"
     }
   }
 }
