@@ -1,27 +1,19 @@
 FROM php:8.3-fpm
 
+# Usa script oficial para baixar extensões pré-compiladas (evita travamento de RAM no Render)
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
 # Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     zip \
     unzip \
     libpq-dev \
-    libzip-dev \
-    libicu-dev
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Limpa o cache apt
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Configura e instala extensões PHP
-RUN docker-php-ext-configure intl \
-    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip intl
-
-# Instala a extensão Redis via PECL
-RUN pecl install redis && docker-php-ext-enable redis
+# Instala todas as extensões de uma vez (baixando os binários prontos)
+RUN install-php-extensions pdo_pgsql mbstring exif pcntl bcmath gd zip intl redis
 
 # Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
