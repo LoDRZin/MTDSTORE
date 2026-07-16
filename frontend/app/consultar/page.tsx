@@ -63,7 +63,7 @@ export default function LookupPage() {
         </div>
         <h1 className="text-3xl md:text-4xl font-display font-bold mb-4">Rastrear Pedido</h1>
         <p className="text-text-tertiary">
-          Insira o cÃ³digo do pedido (UUID) e o e-mail utilizado na compra para resgatar suas chaves digitais.
+          Insira o código do pedido (UUID) e o e-mail utilizado na compra para resgatar suas chaves digitais.
         </p>
       </div>
         
@@ -145,7 +145,7 @@ export default function LookupPage() {
                   <div className="flex flex-col gap-6">
                     <p className="text-text-secondary flex items-center gap-2">
                       <KeyRound size={18} className="text-brand-500" />
-                      Suas chaves digitais estÃ£o prontas:
+                      Suas chaves digitais estão prontas:
                     </p>
                     
                     <div className="flex flex-col gap-4">
@@ -169,8 +169,8 @@ export default function LookupPage() {
                     <div className="w-16 h-16 bg-surface-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
                       <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
                     </div>
-                    <p className="text-lg font-semibold text-white mb-2">Aguardando confirmaÃ§Ã£o de pagamento.</p>
-                    <p className="text-text-tertiary">Assim que o banco aprovar, as chaves aparecerÃ£o aqui e serÃ£o enviadas por e-mail.</p>
+                    <p className="text-lg font-semibold text-white mb-2">Aguardando confirmação de pagamento.</p>
+                    <p className="text-text-tertiary">Assim que o banco aprovar, as chaves aparecerão aqui e serão enviadas por e-mail.</p>
                   </div>
                 )}
               </div>

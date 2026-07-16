@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   
-  const [gateway, setGateway] = useState("mercadopago"); // mercadopago (PIX) or stripe (CartÃ£o)
+  const [gateway, setGateway] = useState("mercadopago"); // mercadopago (PIX) or stripe (Cartão)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
@@ -83,10 +83,10 @@ export default function CheckoutPage() {
           <div className="w-20 h-20 bg-brand-600/10 rounded-full flex items-center justify-center mb-6">
             <ShoppingCart size={32} className="text-brand-500" />
           </div>
-          <h2 className="text-2xl font-display font-semibold mb-3">Seu carrinho estÃ¡ vazio.</h2>
-          <p className="text-text-tertiary mb-8">VocÃª precisa adicionar produtos antes de finalizar a compra.</p>
+          <h2 className="text-2xl font-display font-semibold mb-3">Seu carrinho está vazio.</h2>
+          <p className="text-text-tertiary mb-8">Você precisa adicionar produtos antes de finalizar a compra.</p>
           <Link href="/">
-            <PremiumButton>Voltar ao CatÃ¡logo</PremiumButton>
+            <PremiumButton>Voltar ao Catálogo</PremiumButton>
           </Link>
         </div>
       </SectionContainer>
@@ -100,8 +100,8 @@ export default function CheckoutPage() {
           <div className="w-20 h-20 bg-brand-600/10 rounded-full flex items-center justify-center mb-6">
             <ShieldCheck size={32} className="text-brand-500" />
           </div>
-          <h2 className="text-2xl font-display font-semibold mb-3">AutenticaÃ§Ã£o NecessÃ¡ria</h2>
-          <p className="text-text-tertiary mb-8">Para sua seguranÃ§a e envio automÃ¡tico do produto, vocÃª precisa estar logado para finalizar a compra.</p>
+          <h2 className="text-2xl font-display font-semibold mb-3">Autenticação Necessária</h2>
+          <p className="text-text-tertiary mb-8">Para sua segurança e envio automático do produto, você precisa estar logado para finalizar a compra.</p>
           <PremiumButton onClick={() => setAuthModalOpen(true)}>Fazer Login ou Criar Conta</PremiumButton>
         </div>
       </SectionContainer>
@@ -161,11 +161,11 @@ export default function CheckoutPage() {
               <Mail size={20} className="text-text-tertiary" /> Recebimento
             </h3>
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-text-secondary font-medium">Os produtos serÃ£o entregues no seguinte e-mail:</p>
+              <p className="text-sm text-text-secondary font-medium">Os produtos serão entregues no seguinte e-mail:</p>
               <div className="w-full bg-surface-950 border border-brand-500/30 rounded-xl p-4 text-white">
                 <span className="font-semibold text-brand-400">{user?.email}</span>
               </div>
-              <p className="text-xs text-text-tertiary mt-1">Este Ã© o e-mail cadastrado na sua conta.</p>
+              <p className="text-xs text-text-tertiary mt-1">Este é o e-mail cadastrado na sua conta.</p>
             </div>
           </div>
           
@@ -181,7 +181,7 @@ export default function CheckoutPage() {
                   <strong className={`font-semibold ${gateway === 'mercadopago' ? 'text-brand-400' : 'text-white'}`}>PIX</strong>
                   <QrCode size={20} className={gateway === 'mercadopago' ? 'text-brand-400' : ''} />
                 </div>
-                <div className="text-sm">AprovaÃ§Ã£o imediata</div>
+                <div className="text-sm">Aprovação imediata</div>
                 {gateway === 'mercadopago' && (
                   <div className="absolute -top-3 -right-3 w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm shadow-brand-sm">âœ“</div>
                 )}
@@ -190,10 +190,10 @@ export default function CheckoutPage() {
               <label className={`relative p-5 border rounded-2xl cursor-pointer transition-all ${gateway === 'stripe' ? 'border-brand-500 bg-brand-600/5' : 'border-white/10 bg-surface-950 hover:bg-white/5 text-text-tertiary'}`}>
                 <input type="radio" name="gateway" value="stripe" checked={gateway === 'stripe'} onChange={() => setGateway("stripe")} className="hidden" />
                 <div className="flex items-center justify-between mb-2">
-                  <strong className={`font-semibold ${gateway === 'stripe' ? 'text-brand-400' : 'text-white'}`}>CartÃ£o de CrÃ©dito</strong>
+                  <strong className={`font-semibold ${gateway === 'stripe' ? 'text-brand-400' : 'text-white'}`}>Cartão de Crédito</strong>
                   <CreditCard size={20} className={gateway === 'stripe' ? 'text-brand-400' : ''} />
                 </div>
-                <div className="text-sm">AtÃ© 12x s/ juros</div>
+                <div className="text-sm">Até 12x s/ juros</div>
                 {gateway === 'stripe' && (
                   <div className="absolute -top-3 -right-3 w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm shadow-brand-sm">âœ“</div>
                 )}

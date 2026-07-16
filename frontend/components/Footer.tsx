@@ -136,9 +136,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-text-tertiary">
           <p>© {currentYear} MTD STORE. Todos os direitos reservados.</p>
           <div className="flex items-center gap-2">
-            Desenvolvido com
-            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-            para máxima velocidade.
+            Desenvolvido por lodrzin
           </div>
         </div>
       </div>

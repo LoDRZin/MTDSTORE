@@ -1,4 +1,4 @@
-﻿import ProductList from "@/components/ProductList";
+import ProductList from "@/components/ProductList";
 import FilterSidebar from "@/components/FilterSidebar";
 import SectionContainer from "@/components/ui/SectionContainer";
 import { Zap, ShieldCheck, RefreshCw, Clock } from "lucide-react";
@@ -8,7 +8,7 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "MTD STORE | Chaves e Produtos Digitais",
   description:
-    "Compre chaves de jogos, licenÃ§as de software e produtos digitais com entrega automÃ¡tica 24/7. Os melhores preÃ§os com seguranÃ§a garantida.",
+    "Compre chaves de jogos, licenças de software e produtos digitais com entrega automática 24/7. Os melhores preços com segurança garantida.",
 };
 
 async function getProducts(searchParams: { [key: string]: string | string[] | undefined }) {
@@ -49,23 +49,23 @@ async function getCategories() {
 const FEATURES = [
   {
     Icon: Zap,
-    title: "Entrega InstantÃ¢nea",
-    desc: "Chave entregue automaticamente apÃ³s a aprovaÃ§Ã£o do pagamento.",
+    title: "Entrega Instantânea",
+    desc: "Chave entregue automaticamente após a aprovação do pagamento.",
   },
   {
     Icon: ShieldCheck,
     title: "100% Seguro",
-    desc: "Pagamentos criptografados. Suas informaÃ§Ãµes protegidas.",
+    desc: "Pagamentos criptografados. Suas informações protegidas.",
   },
   {
     Icon: RefreshCw,
     title: "Garantia Total",
-    desc: "Chave invÃ¡lida? SubstituÃ­mos ou reembolsamos sem burocracia.",
+    desc: "Chave inválida? Substituímos ou reembolsamos sem burocracia.",
   },
   {
     Icon: Clock,
     title: "Suporte 24/7",
-    desc: "Nossa equipe estÃ¡ disponÃ­vel a qualquer hora para te ajudar.",
+    desc: "Nossa equipe está disponível a qualquer hora para te ajudar.",
   },
 ] as const;
 
@@ -86,7 +86,7 @@ export default async function Home({
           {/* Online badge */}
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md" role="status" aria-label="Loja online">
             <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" aria-hidden="true" />
-            Loja Online â€” DisponÃ­vel 24/7
+            Loja Online — Disponível 24/7
           </div>
 
           {/* Title */}
@@ -99,17 +99,17 @@ export default async function Home({
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-12 leading-relaxed">
-            Entrega automÃ¡tica na velocidade da luz. PIX, CartÃ£o e Boleto.
+            Entrega automática na velocidade da luz. PIX, Cartão e Boleto.
             Mais de 500 produtos com garantia total.
           </p>
 
           {/* Stats */}
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 max-w-3xl mx-auto py-8 px-6 bg-surface-900/50 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl" aria-label="EstatÃ­sticas da loja">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 max-w-3xl mx-auto py-8 px-6 bg-surface-900/50 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl" aria-label="Estatísticas da loja">
             {[
               { value: "500+", label: "Produtos" },
               { value: "10k+", label: "Clientes" },
               { value: "24/7", label: "Entrega Auto" },
-              { value: "4.9â˜…", label: "AvaliaÃ§Ã£o" },
+              { value: "4.9★", label: "Avaliação" },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center">
                 <p className="font-display font-bold text-2xl md:text-3xl text-white">{stat.value}</p>
@@ -148,7 +148,7 @@ export default async function Home({
       <SectionContainer className="py-24" delay={0.2}>
         <div className="container mx-auto px-4">
           <h2 id="products-title" className="sr-only">
-            CatÃ¡logo de Produtos
+            Catálogo de Produtos
           </h2>
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <Suspense fallback={<div className="w-full text-center py-10">Carregando...</div>}>
