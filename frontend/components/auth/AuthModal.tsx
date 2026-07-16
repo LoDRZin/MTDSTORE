@@ -25,14 +25,15 @@ export default function AuthModal() {
     setError("");
 
     try {
-      const endpoint = mode === "login" ? "/api/v1/login" : "/api/v1/register";
+      const path = mode === "login" ? "/api/v1/login" : "/api/v1/register";
       const payload =
         mode === "login"
           ? { email, password }
           : { email, password, name, password_confirmation: passwordConfirmation };
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-      const res = await fetch(`${apiUrl}${endpoint.replace('/api/v1', '')}`, {
+      // Use absolute URL to work on both localhost and Vercel
+      const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+      const res = await fetch(`${baseUrl}${path}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,8 +71,8 @@ export default function AuthModal() {
 
   const handleGoogleLogin = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-      const res = await fetch(`${apiUrl}/auth/google/url`);
+      const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+      const res = await fetch(`${baseUrl}/api/v1/auth/google/url`);
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
