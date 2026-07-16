@@ -1,6 +1,24 @@
 node_modules/
 vendor/
+
+# ─── Environment files — NEVER commit real .env files ──────────────────────
+# Root
 .env
+.env.*
+!.env.example
+
+# Backend
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Frontend
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+!frontend/.env.local  # kept as example name, real local files are *.local per Next.js convention
+
+# ─── Build artifacts ────────────────────────────────────────────────────────
 .env.backup
 .env.production
 *.log

@@ -7,7 +7,45 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  # ─── GATE 1: Env Safety — blocks deploy before anything else ────────────────
+  env-safety-check:
+    name: "🔒 Env Safety Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "❌ Fail if NEXT_PUBLIC_* points to localhost"
+        run: |
+          echo "Checking for localhost in public env vars..."
+          FAIL=0
+          for envfile in frontend/.env frontend/.env.production; do
+            if [ -f "$envfile" ]; then
+              if grep -qE "NEXT_PUBLIC_[A-Z_]+=.*localhost" "$envfile"; then
+                echo "❌ BLOCKED: $envfile contains NEXT_PUBLIC_* pointing to localhost:"
+                grep -E "NEXT_PUBLIC_[A-Z_]+=.*localhost" "$envfile"
+                FAIL=1
+              fi
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then
+            echo "Fix: clear the value or move it to .env.local (gitignored)"
+            exit 1
+          fi
+          echo "✅ No NEXT_PUBLIC_* localhost variables found."
+
+      - name: "❌ Fail if real .env files are tracked in git"
+        run: |
+          echo "Checking for committed .env files..."
+          committed=$(git ls-tree -r HEAD --name-only | grep -E "^(frontend|backend)/\.env$" || true)
+          if [ -n "$committed" ]; then
+            echo "❌ BLOCKED: real .env committed: $committed"
+            echo "Run: git rm --cached <file>"
+            exit 1
+          fi
+          echo "✅ No real .env files tracked in git."
+
   backend-tests:
+    needs: env-safety-check
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -72,6 +110,7 @@ jobs:
         ./vendor/bin/pest --coverage --min=80
 
   frontend-lint:
+    needs: env-safety-check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -90,3 +129,34 @@ jobs:
     - name: Run ESLint
       working-directory: ./frontend
       run: npm run lint
+
+  # ─── GATE 2: Frontend build must pass on CI with empty NEXT_PUBLIC_API_URL ──
+  frontend-build:
+    name: "🔨 Frontend Build Validation"
+    needs: env-safety-check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: TypeScript check
+      working-directory: ./frontend
+      run: npx tsc --noEmit
+
+    - name: Build (with empty API URL to validate relative-path strategy)
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        # Must stay empty — any localhost value here would be caught by env-safety-check above
+        NEXT_PUBLIC_API_URL: ""
+        REVALIDATION_SECRET: "ci-test-secret"
