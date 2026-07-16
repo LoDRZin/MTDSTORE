@@ -1,19 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 
 export default function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
 
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
-
-  // Smooth out the movement with very low latency
-  const springConfig = { damping: 25, stiffness: 1000, mass: 0.1 };
-  const smoothX = useSpring(cursorX, springConfig);
-  const smoothY = useSpring(cursorY, springConfig);
+  const cursorScale = useMotionValue(1);
+  const cursorOpacity = useMotionValue(1);
 
   useEffect(() => {
     // Check if it's a touch device (pointer: coarse)
@@ -26,74 +22,57 @@ export default function CustomCursor() {
       cursorY.set(e.clientY);
     };
 
+    // Usando event delegation otimizado para evitar re-renders do React
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
+      const isClickable = 
         target.tagName.toLowerCase() === "button" ||
         target.tagName.toLowerCase() === "a" ||
         target.closest("button") ||
         target.closest("a") ||
-        target.getAttribute("role") === "button"
-      ) {
-        setIsHovering(true);
+        target.getAttribute("role") === "button";
+        
+      if (isClickable) {
+        cursorScale.set(1.5);
+        cursorOpacity.set(0.8);
       } else {
-        setIsHovering(false);
+        cursorScale.set(1);
+        cursorOpacity.set(1);
       }
     };
 
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleMouseOver);
+    window.addEventListener("mousemove", moveCursor, { passive: true });
+    window.addEventListener("mouseover", handleMouseOver, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", moveCursor);
       window.removeEventListener("mouseover", handleMouseOver);
     };
-  }, [cursorX, cursorY]);
+  }, [cursorX, cursorY, cursorScale, cursorOpacity]);
 
   if (!isVisible) return null;
 
   return (
     <motion.div
-      className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference hidden md:block"
+      className="fixed top-0 left-0 pointer-events-none z-[9999] hidden md:block"
       style={{
-        x: smoothX,
-        y: smoothY,
+        x: cursorX,
+        y: cursorY,
         translateX: "-50%",
         translateY: "-50%",
+        mixBlendMode: "screen",
+        scale: cursorScale,
+        opacity: cursorOpacity
       }}
     >
+      {/* Puro Glow: Largura e altura 0, apenas a sombra expansiva cria a luz */}
       <motion.div
-        className="w-8 h-8 rounded-full flex items-center justify-center relative"
-        animate={{
-          scale: isHovering ? 1.5 : 1,
+        className="w-0 h-0 rounded-full"
+        style={{
+          boxShadow: "0 0 60px 30px rgba(220, 38, 38, 0.7), 0 0 100px 60px rgba(220, 38, 38, 0.4)",
         }}
         transition={{ duration: 0.15 }}
-      >
-        {/* Anel Exterior com Glow */}
-        <motion.div
-          className="absolute inset-0 rounded-full border border-brand-500"
-          style={{
-            boxShadow: "0 0 10px rgba(220, 38, 38, 0.5), inset 0 0 5px rgba(220, 38, 38, 0.3)",
-          }}
-          animate={{
-            opacity: isHovering ? 0 : 1,
-            scale: isHovering ? 0.8 : 1,
-          }}
-          transition={{ duration: 0.15 }}
-        />
-
-        {/* Ponto Interior com Glow Forte */}
-        <motion.div
-          className="w-2 h-2 bg-brand-500 rounded-full z-10"
-          style={{
-            boxShadow: "0 0 8px rgba(220, 38, 38, 0.8)",
-          }}
-          animate={{
-            scale: isHovering ? 1.5 : 1,
-          }}
-          transition={{ duration: 0.15 }}
-        />
-      </motion.div>
+      />
     </motion.div>
   );
 }
