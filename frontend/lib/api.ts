@@ -1,32 +1,28 @@
 /**
  * Centralized API client for MTD Store.
- *
- * URL resolution strategy:
- * - Client-side (browser): uses window.location.origin — always correct, never localhost
- * - Server-side (Next.js SSR/SSG): uses NEXT_PUBLIC_API_URL if set, otherwise
- *   falls back to a relative path which Next.js resolves correctly on Vercel.
- *
- * This ensures:
- *   1. No hardcoded localhost URLs leak into production builds.
- *   2. Works on both Vercel (same-domain monorepo) and custom domains.
- *   3. Differentiates network errors from API errors in the catch block.
  */
 
-function getBaseUrl(): string {
-  // Client-side: always use the current domain
-  if (typeof window !== "undefined") {
-    return window.location.origin;
+export class ApiError extends Error {
+  constructor(public code: string, message: string, public trace_id?: string) {
+    super(message);
+    this.name = "ApiError";
   }
+}
 
-  // Server-side: use NEXT_PUBLIC_API_URL if explicitly set (and not empty/localhost)
+function getBaseUrl(): string {
+  // Always use NEXT_PUBLIC_API_URL if it's set (meaning backend is external like Render)
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (envUrl && envUrl.startsWith("http") && !envUrl.includes("localhost")) {
+  if (envUrl) {
     // Remove /api/v1 suffix if present — we add it in every call
     return envUrl.replace(/\/api\/v1\/?$/, "");
   }
 
+  // Client-side fallback: use the current domain (for monorepo on Vercel)
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
   // Server-side fallback: empty string makes Next.js use its own origin
-  // This works correctly on Vercel where frontend and backend share a domain
   return "";
 }
 
@@ -64,13 +60,11 @@ export async function apiFetch<T = unknown>(
   } catch (networkError) {
     // This is a REAL network failure (DNS, CORS preflight blocked, connection refused)
     console.error(`[apiFetch] Network error calling ${url}:`, networkError);
-    throw new Error(
-      `Não foi possível conectar ao servidor. Verifique sua conexão.`
-    );
+    throw new ApiError("NETWORK_ERROR", "Não foi possível conectar ao servidor. Verifique sua conexão.");
   }
 
   if (!response.ok) {
-    let errorBody: { error?: { message?: string; details?: Record<string, string[]> }; message?: string };
+    let errorBody: { error?: { code?: string; message?: string; details?: Record<string, string[]>; trace_id?: string }; message?: string };
     try {
       errorBody = await response.json();
     } catch {
@@ -82,7 +76,7 @@ export async function apiFetch<T = unknown>(
     if (details) {
       const firstMessages = Object.values(details)[0];
       if (Array.isArray(firstMessages) && firstMessages.length > 0) {
-        throw new Error(firstMessages[0]);
+        throw new ApiError("VALIDATION_ERROR", firstMessages[0]);
       }
     }
 
@@ -90,7 +84,12 @@ export async function apiFetch<T = unknown>(
       errorBody.error?.message ??
       errorBody.message ??
       `Erro ${response.status}`;
-    throw new Error(message);
+      
+    throw new ApiError(
+      errorBody.error?.code ?? "UNKNOWN_ERROR",
+      message,
+      errorBody.error?.trace_id
+    );
   }
 
   return response.json() as Promise<T>;
