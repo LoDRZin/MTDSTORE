@@ -27,9 +27,18 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Define o diretório de trabalho
 WORKDIR /var/www
 
-# Ajusta permissões do usuário (opcional, útil para ambientes de dev local)
-RUN usermod -u 1000 www-data
-USER www-data
+# Copia os arquivos do projeto
+COPY . .
 
-# O código fonte e a pasta vendor serão montados via volume em dev.
-# Em produção, você faria COPY . . e RUN composer install
+# Instala dependências do Composer para produção
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Ajusta permissões do storage
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Expõe a porta que o Koyeb vai escutar
+EXPOSE 8000
+
+# Comando para rodar a aplicação no Koyeb
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
