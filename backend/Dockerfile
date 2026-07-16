@@ -37,8 +37,8 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Expõe a porta que o Koyeb vai escutar
+# Expõe a porta padrão (o Render vai injetar a variável PORT dinamicamente)
 EXPOSE 8000
 
-# Comando para rodar a aplicação no Koyeb
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Comando para rodar a aplicação (aceita a variável PORT do Render ou cai pro 8000)
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
