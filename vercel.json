@@ -12,6 +12,10 @@
   ],
   "routes": [
     {
+      "src": "/api/test",
+      "dest": "/backend/api/test.php"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/backend/api/index.php"
     },
