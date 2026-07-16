@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useCartStore } from "@/store/cart";
@@ -22,7 +22,7 @@ export default function CouponInput() {
 
     try {
       const productIds = items.map((i) => i.id);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
       const res = await fetch(`${apiUrl}/coupon/validate`, {
         method: "POST",

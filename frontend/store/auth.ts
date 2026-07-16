@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState>()(
         const localItems = cartState.items;
 
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
           
           // Primeiro, tenta carregar o carrinho do servidor
           const res = await fetch(`${apiUrl}/cart/load`, {

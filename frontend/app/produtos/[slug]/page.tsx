@@ -20,7 +20,7 @@ type Props = {
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     const res = await fetch(`${apiUrl}/products/${slug}`, {
       next: { revalidate: 3600, tags: [`product-${slug}`] }
     });

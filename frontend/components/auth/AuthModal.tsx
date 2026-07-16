@@ -31,7 +31,7 @@ export default function AuthModal() {
           ? { email, password }
           : { email, password, name, password_confirmation: passwordConfirmation };
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
       const res = await fetch(`${apiUrl}${endpoint.replace('/api/v1', '')}`, {
         method: "POST",
         headers: {
@@ -61,7 +61,7 @@ export default function AuthModal() {
 
   const handleGoogleLogin = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
       const res = await fetch(`${apiUrl}/auth/google/url`);
       const data = await res.json();
       if (data.url) {
