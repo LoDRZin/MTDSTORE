@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 # Usa script oficial para baixar extensões pré-compiladas (evita travamento de RAM no Render)
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
