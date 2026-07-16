@@ -10,13 +10,15 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
-    libzip-dev
+    libzip-dev \
+    libicu-dev
 
 # Limpa o cache apt
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instala extensões PHP
-RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip
+# Configura e instala extensões PHP
+RUN docker-php-ext-configure intl \
+    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd zip intl
 
 # Instala a extensão Redis via PECL
 RUN pecl install redis && docker-php-ext-enable redis
