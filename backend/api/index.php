@@ -12,4 +12,15 @@ if (!empty($_SERVER['HTTP_X_FORWARDED_HOST'])) {
     $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
 }
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    header('HTTP/1.1 500 Internal Server Error');
+    header('Content-Type: application/json');
+    echo json_encode([
+        'error' => 'Laravel Boot Crash',
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
+}
