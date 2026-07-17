@@ -154,16 +154,16 @@ export default async function ProductPage({ params }: Props) {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkEmoji]}
                 components={{
-                  p: ({node, ...props}) => <p className="mb-4" {...props} />,
-                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-1" {...props} />,
-                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4 space-y-1" {...props} />,
-                  li: ({node, ...props}) => <li {...props} />,
-                  h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
-                  h2: ({node, ...props}) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
-                  h3: ({node, ...props}) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
-                  strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
-                  a: ({node, ...props}) => <a className="text-brand-400 hover:underline" {...props} />,
-                  hr: ({node, ...props}) => <hr className="border-white/10 my-6" {...props} />,
+                  p: (props) => <p className="mb-4" {...props} />,
+                  ul: (props) => <ul className="list-disc pl-5 mb-4 space-y-1" {...props} />,
+                  ol: (props) => <ol className="list-decimal pl-5 mb-4 space-y-1" {...props} />,
+                  li: (props) => <li {...props} />,
+                  h1: (props) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
+                  h2: (props) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
+                  h3: (props) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
+                  strong: (props) => <strong className="font-bold text-white" {...props} />,
+                  a: (props) => <a className="text-brand-400 hover:underline" {...props} />,
+                  hr: (props) => <hr className="border-white/10 my-6" {...props} />,
                 }}
               >
                 {product.description || "Nenhuma descrição detalhada disponível para este produto. Em caso de dúvidas, contate o suporte antes de realizar a compra."}
