@@ -135,7 +135,7 @@ export default function FilterSidebar({ categories }: FilterSidebarProps) {
       }
     }, 400);
     return () => clearTimeout(timer);
-  }, [filters.min_price, filters.max_price, applyFiltersToUrl, searchParams]);
+  }, [filters, applyFiltersToUrl, searchParams]);
 
   const updateCategory = (slug: string) => {
     const newFilters = { ...filters, category: slug };

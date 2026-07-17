@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/store/cart";
-import { ShoppingCart, Eye, Package, TrendingUp, Flame } from "lucide-react";
+import { ShoppingCart, Package, TrendingUp, Flame } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Product {

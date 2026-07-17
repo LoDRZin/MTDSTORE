@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import SectionContainer from "@/components/ui/SectionContainer";
 import PremiumButton from "@/components/ui/PremiumButton";
-import { CheckCircle2, Copy, AlertTriangle, KeyRound, Mail, Download, FileText } from "lucide-react";
+import { CheckCircle2, Copy, AlertTriangle, KeyRound, Download, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface OrderItem {
@@ -52,8 +52,8 @@ function SuccessContent({ uuid }: { uuid: string }) {
           });
         } else {
           // Acesso logo após o checkout (só mostra que tá processando ou confirmação de envio)
-          const res = await fetch(`${apiUrl}/orders/${uuid}/lookup`);
-          const data = await res.json();
+          await fetch(`${apiUrl}/orders/${uuid}/lookup`);
+          
           // Não dá erro aqui se o pedido não estiver pago, pois lookup só exige email se for consultar histórico, mas nesse caso a gente só diz pro usuário olhar o email.
           setOrder({
             uuid,
