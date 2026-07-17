@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import ProductPurchaseArea from "@/components/ProductPurchaseArea";
 import SectionContainer from "@/components/ui/SectionContainer";
 import { Package, TrendingUp, ShieldCheck, ChevronRight } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkEmoji from "remark-emoji";
 
 interface Product {
   id: number;
@@ -147,9 +150,25 @@ export default async function ProductPage({ params }: Props) {
           
           <div className="mb-8 flex-1">
             <h3 className="text-lg font-display font-semibold text-white mb-3">Descrição do Produto</h3>
-            <p className="text-text-secondary leading-relaxed whitespace-pre-line text-sm md:text-base">
-              {product.description || "Nenhuma descrição detalhada disponível para este produto. Em caso de dúvidas, contate o suporte antes de realizar a compra."}
-            </p>
+            <div className="text-text-secondary leading-relaxed text-sm md:text-base">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkEmoji]}
+                components={{
+                  p: ({node, ...props}) => <p className="mb-4" {...props} />,
+                  ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-1" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4 space-y-1" {...props} />,
+                  li: ({node, ...props}) => <li {...props} />,
+                  h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-white mb-4 mt-6" {...props} />,
+                  h2: ({node, ...props}) => <h2 className="text-xl font-bold text-white mb-3 mt-5" {...props} />,
+                  h3: ({node, ...props}) => <h3 className="text-lg font-bold text-white mb-2 mt-4" {...props} />,
+                  strong: ({node, ...props}) => <strong className="font-bold text-white" {...props} />,
+                  a: ({node, ...props}) => <a className="text-brand-400 hover:underline" {...props} />,
+                  hr: ({node, ...props}) => <hr className="border-white/10 my-6" {...props} />,
+                }}
+              >
+                {product.description || "Nenhuma descrição detalhada disponível para este produto. Em caso de dúvidas, contate o suporte antes de realizar a compra."}
+              </ReactMarkdown>
+            </div>
           </div>
           
           <ProductPurchaseArea product={product} />
