@@ -16,7 +16,7 @@ class SalesChartWidget extends ChartWidget
     protected ?string $heading = 'Receita e Vendas';
     protected static ?int $sort = 1;
     protected int | string | array $columnSpan = 'full';
-    protected static ?string $maxHeight = '275px';
+    protected static ?string $maxHeight = '200px';
 
     protected function getData(): array
     {
