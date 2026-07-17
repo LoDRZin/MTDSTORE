@@ -23,7 +23,7 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
-      next: { revalidate: 300, tags: ['products'] },
+      cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch products");
     const data = await res.json();
@@ -37,7 +37,7 @@ async function getCategories() {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     const res = await fetch(`${apiUrl}/categories`, {
-      next: { revalidate: 60, tags: ["categories"] },
+      cache: "no-store",
     });
     if (!res.ok) throw new Error("Failed to fetch categories");
     const data = await res.json();
