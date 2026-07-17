@@ -23,17 +23,6 @@ class SalesKpiWidget extends StatsOverviewWidget
         // Cache para evitar queries pesadas a cada refresh
         return Cache::remember("admin_dashboard_kpis_{$period}", now()->addMinutes(2), function () use ($period) {
             
-            // Otimização: Evitar N+1 oculto no get()
-            $lowStockCount = \App\Models\Product::whereIn('status', ['active', 'published'])
-                ->where(function ($query) {
-                    $query->whereHas('stockItems', function ($q) {
-                        $q->where('status', 'available');
-                    }, '<', 5);
-                })
-                ->count();
-                
-            $failedJobs = \Illuminate\Support\Facades\DB::table('failed_jobs')->count();
-
             $query = Order::where('status', 'paid');
 
             if ($period !== 'all_time') {
@@ -64,16 +53,6 @@ class SalesKpiWidget extends StatsOverviewWidget
             $netRevenue = $grossRevenue * 0.85; 
 
             return [
-                Stat::make('Produtos em Baixo Estoque', $lowStockCount)
-                    ->description('Menos de 5 chaves')
-                    ->descriptionIcon('heroicon-m-exclamation-triangle')
-                    ->color($lowStockCount > 0 ? 'danger' : 'success'),
-                    
-                Stat::make('Jobs Falhados', $failedJobs)
-                    ->description('Falhas na fila')
-                    ->descriptionIcon('heroicon-m-x-circle')
-                    ->color($failedJobs > 0 ? 'danger' : 'success'),
-                    
                 Stat::make('Receita Disponível', 'R$ ' . number_format($grossRevenue, 2, ',', '.'))
                     ->description('Receita bruta do período')
                     ->descriptionIcon('heroicon-m-banknotes')
