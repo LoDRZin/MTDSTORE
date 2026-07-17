@@ -56,7 +56,7 @@ class Category extends Model
     public function activeChildren(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id')
-            ->where('is_active', true)
+            ->whereRaw('is_active = true')
             ->orderBy('order')
             ->with('activeChildren');
     }
@@ -77,7 +77,7 @@ class Category extends Model
     /** Only active categories */
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->whereRaw('is_active = true');
     }
 
     /** Only root categories (no parent) */
