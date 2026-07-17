@@ -104,33 +104,56 @@ export default function FilterSidebar({ categories }: FilterSidebarProps) {
     in_stock: searchParams.get("in_stock") === "1",
   });
 
-  // Sync filters to URL with debounce
+  // Atualizar URL (usado para cliques instantâneos)
+  const applyFiltersToUrl = useCallback((newFilters: FilterState) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (newFilters.category) params.set("category", newFilters.category);
+    else params.delete("category");
+    
+    if (newFilters.min_price) params.set("min_price", newFilters.min_price);
+    else params.delete("min_price");
+    
+    if (newFilters.max_price) params.set("max_price", newFilters.max_price);
+    else params.delete("max_price");
+    
+    if (newFilters.in_stock) params.set("in_stock", "1");
+    else params.delete("in_stock");
+
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
+
+  // Sync apenas para preços com debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      
-      if (filters.category) params.set("category", filters.category);
-      else params.delete("category");
-      
-      if (filters.min_price) params.set("min_price", filters.min_price);
-      else params.delete("min_price");
-      
-      if (filters.max_price) params.set("max_price", filters.max_price);
-      else params.delete("max_price");
-      
-      if (filters.in_stock) params.set("in_stock", "1");
-      else params.delete("in_stock");
-
-      const query = params.toString();
-      router.push(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      // Verifica se o preço mudou em relação à URL antes de fazer push
+      const urlMin = searchParams.get("min_price") ?? "";
+      const urlMax = searchParams.get("max_price") ?? "";
+      if (filters.min_price !== urlMin || filters.max_price !== urlMax) {
+        applyFiltersToUrl(filters);
+      }
     }, 400);
-
     return () => clearTimeout(timer);
-  }, [filters, pathname, router, searchParams]);
+  }, [filters.min_price, filters.max_price, applyFiltersToUrl, searchParams]);
+
+  const updateCategory = (slug: string) => {
+    const newFilters = { ...filters, category: slug };
+    setFilters(newFilters);
+    applyFiltersToUrl(newFilters);
+  };
+
+  const updateInStock = (checked: boolean) => {
+    const newFilters = { ...filters, in_stock: checked };
+    setFilters(newFilters);
+    applyFiltersToUrl(newFilters);
+  };
 
   const clearAll = useCallback(() => {
-    setFilters({ category: "", min_price: "", max_price: "", in_stock: false });
-  }, []);
+    const empty = { category: "", min_price: "", max_price: "", in_stock: false };
+    setFilters(empty);
+    applyFiltersToUrl(empty);
+  }, [applyFiltersToUrl]);
 
   const hasActiveFilters =
     filters.category || filters.min_price || filters.max_price || filters.in_stock;
@@ -165,7 +188,7 @@ export default function FilterSidebar({ categories }: FilterSidebarProps) {
             <input
               type="checkbox"
               checked={filters.in_stock}
-              onChange={(e) => setFilters((f) => ({ ...f, in_stock: e.target.checked }))}
+              onChange={(e) => updateInStock(e.target.checked)}
               className="peer sr-only"
               aria-label="Apenas produtos em estoque"
             />
@@ -213,7 +236,7 @@ export default function FilterSidebar({ categories }: FilterSidebarProps) {
                 key={cat.id}
                 cat={cat}
                 activeSlug={filters.category}
-                onSelect={(slug) => setFilters((f) => ({ ...f, category: slug }))}
+                onSelect={(slug) => updateCategory(slug)}
               />
             ))}
           </ul>
