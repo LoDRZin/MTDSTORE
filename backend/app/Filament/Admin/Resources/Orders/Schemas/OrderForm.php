@@ -64,9 +64,29 @@ class OrderForm
                                     ->label('Preço Unitário')
                                     ->content(fn ($record) => $record ? 'R$ ' . number_format($record->price, 2, ',', '.') : '-'),
 
-                                Placeholder::make('stock_item.value')
+                                Placeholder::make('stock_item_value')
                                     ->label('Chave Entregue')
-                                    ->content(fn ($record) => $record?->stock_item?->value ?? 'Nenhuma chave atrelada'),
+                                    ->content('••••••••••••••••')
+                                    ->hintAction(
+                                        \Filament\Forms\Components\Actions\Action::make('reveal')
+                                            ->label('Revelar')
+                                            ->icon('heroicon-m-eye')
+                                            ->color('warning')
+                                            ->requiresConfirmation()
+                                            ->modalHeading('Revelar Chave Sensível')
+                                            ->modalDescription('Você está prestes a visualizar a chave original em texto puro. Esta ação será registrada em log.')
+                                            ->visible(fn () => auth()->user()->hasRole('super_admin'))
+                                            ->modalContent(fn ($record) => view('filament.admin.components.reveal-key', ['key' => $record?->stock_item?->value ?? '']))
+                                            ->action(function ($record) {
+                                                if ($record?->stock_item) {
+                                                    activity()
+                                                        ->performedOn($record->stock_item)
+                                                        ->causedBy(auth()->user())
+                                                        ->log('Visualizou a chave de estoque no pedido em texto puro');
+                                                }
+                                            })
+                                    )
+                                    ->visible(fn ($record) => $record && $record->stock_item_id),
                             ])
                             ->columns(3)
                             ->disableItemCreation()
