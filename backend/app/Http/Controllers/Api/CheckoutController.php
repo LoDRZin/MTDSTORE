@@ -12,24 +12,26 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'items' => 'required|array',
-            'items.*.product_id' => 'required|integer',
-            'items.*.quantity' => 'required|integer|min:1',
-            'coupon_code' => 'nullable|string',
-            'gateway' => 'required|string|in:stripe,paypal,mercadopago' // Example gateways
+            'email'               => 'required|email',
+            'items'               => 'required|array',
+            'items.*.product_id'  => 'required|integer',
+            'items.*.quantity'    => 'required|integer|min:1',
+            'items.*.variant_id'  => 'nullable|integer',
+            'coupon_code'         => 'nullable|string',
+            'gateway'             => 'required|string|in:mercadopago,stripe',
         ]);
 
         try {
-            // Find or create guest user by email
+            // 1. Encontra ou cria o usuário pelo e-mail
             $user = \App\Models\User::firstOrCreate(
                 ['email' => $request->email],
                 [
-                    'name' => 'Guest Customer',
-                    'password' => bcrypt(\Illuminate\Support\Str::random(24))
+                    'name'     => 'Cliente',
+                    'password' => bcrypt(\Illuminate\Support\Str::random(24)),
                 ]
             );
 
+            // 2. Cria o pedido no banco (status: pending)
             $order = $this->checkoutService->process(
                 $user,
                 $request->items,
@@ -37,18 +39,31 @@ class CheckoutController extends Controller
                 $request->gateway
             );
 
+            // 3. Dispara o gateway de pagamento para criar a cobrança real
+            $gateway = \App\Gateways\PaymentGatewayFactory::make($request->gateway);
+            $paymentIntent = $gateway->createCharge($order->fresh(['customer']));
+
             return response()->json([
-                'message' => 'Pedido criado com sucesso',
-                'order' => $order
+                'message'             => 'Pedido criado com sucesso',
+                'order'               => ['uuid' => $order->uuid],
+                'payment' => [
+                    'gateway'            => $request->gateway,
+                    'external_reference' => $paymentIntent->externalReference,
+                    'checkout_url'       => $paymentIntent->checkoutUrl,
+                    'qr_code'            => $paymentIntent->qrCode,
+                ],
             ], 201);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => [
-                    'code' => 'UNPROCESSABLE_ENTITY',
-                    'message' => $e->getMessage(),
+                    'code'     => 'UNPROCESSABLE_ENTITY',
+                    'message'  => $e->getMessage(),
                     'trace_id' => request()->header('X-Correlation-ID', uniqid()),
-                    'details' => []
-                ]
+                    'details'  => [],
+                ],
             ], 422);
         }
-    }}
+    }
+}
+

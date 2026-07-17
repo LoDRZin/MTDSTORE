@@ -21,7 +21,9 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
-  const [qrCode, setQrCode] = useState(""); // Simulate PIX return
+  const [qrCode, setQrCode] = useState("");
+  const [pixCopyPaste, setPixCopyPaste] = useState("");
+  const [pixUrl, setPixUrl] = useState("");
   const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
@@ -51,21 +53,26 @@ export default function CheckoutPage() {
         }))
       };
       
-      const data = await apiFetch<{ order: { uuid: string } }>("/checkout", {
+      const data = await apiFetch<{ order: { uuid: string }; payment: { qr_code?: string; checkout_url?: string; external_reference?: string } }>("/checkout", {
         method: "POST",
         body: JSON.stringify(payload)
       });
       
       const uuid = data.order.uuid;
+      setOrderId(uuid);
       
-      // Simulate gateway returns
       if (gateway === "mercadopago") {
-        setOrderId(uuid);
-        setQrCode("00020126360014br.gov.bcb.pix0114+5511999999999520400005303986540510.005802BR5913MTD STORE LTDA6009SAO PAULO62070503***6304A1B2");
+        setQrCode(data.payment?.checkout_url || ""); // URL do ticket do PIX
+        setPixCopyPaste(data.payment?.qr_code || ""); // Código copia e cola
+        setPixUrl(data.payment?.checkout_url || "");
       } else {
-        // Stripe success simulation -> redirect immediately to success page
-        clearCart();
-        router.push(`/pedido/${uuid}/sucesso`);
+        // Stripe: redirecionar para URL de checkout
+        if (data.payment?.checkout_url) {
+          window.location.href = data.payment.checkout_url;
+        } else {
+          clearCart();
+          router.push(`/pedido/${uuid}/sucesso`);
+        }
       }
       
     } catch (err: unknown) {
@@ -75,7 +82,7 @@ export default function CheckoutPage() {
     }
   };
   
-  const simulatePaymentSuccess = () => {
+  const handlePixPaid = () => {
     clearCart();
     router.push(`/pedido/${orderId}/sucesso`);
   };
@@ -112,31 +119,50 @@ export default function CheckoutPage() {
     );
   }
 
-  if (qrCode) {
+  if (qrCode || pixUrl) {
     return (
       <SectionContainer className="container mx-auto px-4 py-16 text-center max-w-xl">
         <h2 className="text-3xl font-display font-bold mb-3">Pagamento PIX</h2>
-        <p className="text-text-tertiary mb-10">Escaneie o QR Code abaixo no app do seu banco para pagar.</p>
+        <p className="text-text-tertiary mb-10">Escaneie o QR Code ou use o código Copia e Cola no app do seu banco.</p>
         
         <div className="glass-panel p-10 rounded-3xl flex flex-col items-center shadow-2xl">
-          <div className="bg-white p-6 rounded-2xl mb-8 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-             <div className="w-48 h-48 border-4 border-black border-dashed flex items-center justify-center rounded-xl bg-gray-50 text-black font-mono text-sm opacity-50">
-               Mock QR CODE
-             </div>
-          </div>
+          {pixUrl ? (
+            <a href={pixUrl} target="_blank" rel="noopener noreferrer" className="bg-white p-6 rounded-2xl mb-8 shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
+              <div className="w-48 h-48 flex items-center justify-center">
+                <QrCode size={100} className="text-black" />
+              </div>
+            </a>
+          ) : (
+            <div className="bg-white p-6 rounded-2xl mb-8 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+              <div className="w-48 h-48 flex items-center justify-center">
+                <QrCode size={100} className="text-black" />
+              </div>
+            </div>
+          )}
           
-          <div className="w-full relative mb-8">
-             <input 
-               type="text" 
-               className="w-full bg-surface-950 border border-white/10 rounded-xl p-4 text-center text-sm font-mono text-text-secondary focus:outline-none" 
-               readOnly 
-               value={qrCode} 
-             />
-             <p className="text-brand-400 text-xs mt-3 uppercase tracking-wider font-bold">Copia e Cola</p>
-          </div>
+          {pixCopyPaste && (
+            <div className="w-full relative mb-8">
+              <input 
+                type="text" 
+                className="w-full bg-surface-950 border border-white/10 rounded-xl p-4 text-center text-sm font-mono text-text-secondary focus:outline-none" 
+                readOnly 
+                value={pixCopyPaste} 
+              />
+              <button
+                onClick={() => navigator.clipboard.writeText(pixCopyPaste)}
+                className="mt-3 text-brand-400 text-xs uppercase tracking-wider font-bold hover:text-brand-300 transition-colors"
+              >
+                Copiar código Pix
+              </button>
+            </div>
+          )}
+
+          <p className="text-sm text-text-tertiary mb-6">
+            Após pagar, seus produtos serão entregues automaticamente por e-mail.
+          </p>
           
-          <PremiumButton variant="secondary" size="lg" onClick={simulatePaymentSuccess} className="w-full">
-            [DEV] Simular Pagamento Aprovado
+          <PremiumButton variant="secondary" size="lg" onClick={handlePixPaid} className="w-full">
+            Já paguei — ver meu pedido
           </PremiumButton>
         </div>
       </SectionContainer>
