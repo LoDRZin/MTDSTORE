@@ -21,6 +21,9 @@ class SuccessController extends Controller
                     'product_name' => $item->product->name . ($item->variant ? ' (' . $item->variant->name . ')' : ''),
                     'delivery_type' => $item->product->delivery_type,
                     'post_purchase_instructions' => $item->product->post_purchase_instructions,
+                    'file_url' => $item->product->delivery_type === 'file_download' && $item->product->file_path
+                        ? \Illuminate\Support\Facades\Storage::url($item->product->file_path)
+                        : null,
                     'keys' => $item->stockItems->pluck('value') // Aqui o value é finalmente exposto e descriptografado!
                 ];
             })

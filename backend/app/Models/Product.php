@@ -22,6 +22,7 @@ class Product extends Model
         'status',
         'post_purchase_instructions',
         'delivery_type',
+        'file_path',
     ];
 
     public function getActivitylogOptions(): LogOptions

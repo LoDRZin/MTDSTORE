@@ -23,12 +23,21 @@ class DeliverDigitalProduct implements ShouldQueue
     public function handle(): void
     {
         // For security, we do not send the keys directly in the email.
-        // We generate a signed URL valid for 48 hours.
-        $signedUrl = URL::temporarySignedRoute(
+        // We generate a signed URL valid for 48 hours to the API, and then we parse it to build the Frontend URL.
+        $apiSignedUrl = URL::temporarySignedRoute(
             'orders.success', 
             now()->addHours(48), 
             ['order' => $this->order->uuid]
         );
+
+        $parsedUrl = parse_url($apiSignedUrl);
+        parse_str($parsedUrl['query'] ?? '', $queryParams);
+        
+        $frontendBaseUrl = config('app.frontend_url', 'http://localhost:3000');
+        $signature = $queryParams['signature'] ?? '';
+        $expires = $queryParams['expires'] ?? '';
+
+        $signedUrl = "{$frontendBaseUrl}/pedido/{$this->order->uuid}/sucesso?expires={$expires}&signature={$signature}";
 
         // 2. Enviar E-mail
         \Illuminate\Support\Facades\Mail::to($this->order->customer->email ?? $this->order->customer_email)->send(

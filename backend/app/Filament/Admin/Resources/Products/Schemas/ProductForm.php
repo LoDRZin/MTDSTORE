@@ -107,7 +107,15 @@ class ProductForm
                                             'file_download' => 'Download de Arquivo',
                                         ])
                                         ->default('unique_key')
-                                        ->required(),
+                                        ->required()
+                                        ->live(),
+                                    FileUpload::make('file_path')
+                                        ->label('Arquivo para Download')
+                                        ->directory('downloads')
+                                        ->preserveFilenames()
+                                        ->visible(fn (\Filament\Forms\Get $get) => $get('delivery_type') === 'file_download')
+                                        ->required(fn (\Filament\Forms\Get $get) => $get('delivery_type') === 'file_download')
+                                        ->columnSpanFull(),
                                     FileUpload::make('image_url')
                                         ->label('Imagem do Produto')
                                         ->image()
