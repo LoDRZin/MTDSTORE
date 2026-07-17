@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', env('DB_URL') ? (str_contains(env('DB_URL'), 'postgres') ? 'pgsql' : 'mysql') : 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,6 +42,9 @@ return [
             'journal_mode' => null,
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
+            'options' => [
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ],
         ],
 
         'mysql' => [
