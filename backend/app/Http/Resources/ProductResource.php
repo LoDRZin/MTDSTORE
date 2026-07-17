@@ -29,7 +29,9 @@ class ProductResource extends JsonResource
             'name'            => $this->name,
             'slug'            => $this->slug,
             'description'     => $this->description,
-            'image_url'       => $this->image_url ? Storage::url($this->image_url) : null,
+            'image_url'       => $this->image_url 
+                ? (str_starts_with($this->image_url, 'http') ? $this->image_url : Storage::url($this->image_url)) 
+                : null,
             'price'           => $displayPrice,
             'has_variants'    => $this->relationLoaded('variants') && $this->variants->isNotEmpty(),
             'available_count' => $availableCount,

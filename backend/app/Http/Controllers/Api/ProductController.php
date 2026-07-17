@@ -35,9 +35,9 @@ class ProductController extends Controller
 
         $query = Product::active()->with(['categories:id,name,slug', 'variants']);
 
-        // Full-text search on name
+        // Full-text search on name (case-insensitive para Postgres)
         if ($search = $request->input('search')) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
         }
 
         // Filter by category slug
