@@ -145,7 +145,7 @@ export default function ProductPurchaseArea({ product }: ProductPurchaseAreaProp
             variant_id: selectedVariant?.id,
             variant_name: selectedVariant?.name,
           }}
-          isOutOfStock={isOutOfStock || (hasVariants && !selectedVariantId)}
+          isOutOfStock={isOutOfStock || !!(hasVariants && !selectedVariantId)}
         />
       </div>
     </div>
