@@ -27,6 +27,7 @@ class AuthController extends Controller
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->append('is_admin');
 
         return response()->json([
             'access_token' => $token,
@@ -51,6 +52,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->append('is_admin');
 
         return response()->json([
             'access_token' => $token,
@@ -61,7 +63,7 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        return $request->user();
+        return $request->user()->append('is_admin');
     }
 
     public function logout(Request $request)
@@ -110,6 +112,7 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->append('is_admin');
 
         // Redireciona para o frontend com o token na URL (Hash ou Param)
         $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');

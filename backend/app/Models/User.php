@@ -46,10 +46,6 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
     ];
 
-    protected $appends = [
-        'is_admin',
-    ];
-
     public function getIsAdminAttribute(): bool
     {
         return $this->hasRole('super_admin') || $this->hasRole('admin');
