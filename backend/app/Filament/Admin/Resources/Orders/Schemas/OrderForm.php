@@ -82,6 +82,7 @@ class OrderForm
                                                     activity()
                                                         ->performedOn($record->stock_item)
                                                         ->causedBy(auth()->user())
+                                                        ->withProperties(['order_id' => $record->order_id])
                                                         ->log('Visualizou a chave de estoque no pedido em texto puro');
                                                 }
                                             })
