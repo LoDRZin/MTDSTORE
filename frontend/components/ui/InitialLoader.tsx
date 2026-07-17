@@ -27,16 +27,18 @@ export default function InitialLoader() {
     setProgress(0); // Reset progress in case of StrictMode remounts
 
     const interval = setInterval(() => {
-      currentProgress += Math.floor(Math.random() * 15) + 5;
+      // Adiciona de 3 a 7 por vez (média 5)
+      currentProgress += Math.floor(Math.random() * 5) + 3;
+      
       if (currentProgress >= 100) {
         currentProgress = 100;
         clearInterval(interval);
         setTimeout(() => {
           setShowLoader(false);
-        }, 500); // Hold at 100% for half a second before fading out
+        }, 500); // Segura 100% por meio segundo
       }
       setProgress(currentProgress);
-    }, 150);
+    }, 200); // 200ms por tick. ~20 ticks de 5 = 4000ms (4 segundos)
 
     return () => clearInterval(interval);
   }, [showLoader]);
