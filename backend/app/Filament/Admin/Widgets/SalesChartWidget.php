@@ -68,17 +68,20 @@ class SalesChartWidget extends ChartWidget
                     [
                         'label' => 'Receita (R$)',
                         'data' => $revenueData,
-                        'backgroundColor' => '#10b981', // emerald-500
-                        'borderColor' => '#10b981',
+                        'backgroundColor' => 'rgba(16, 185, 129, 0.15)', // emerald-500 com opacidade
+                        'borderColor' => '#10b981', // emerald-500
+                        'fill' => 'start',
+                        'tension' => 0.4,
                         'yAxisID' => 'y',
                     ],
                     [
                         'label' => 'Qtd. Vendas',
                         'data' => $countData,
-                        'backgroundColor' => '#3b82f6', // blue-500
-                        'borderColor' => '#3b82f6',
+                        'backgroundColor' => 'rgba(59, 130, 246, 0.15)', // blue-500 com opacidade
+                        'borderColor' => '#3b82f6', // blue-500
+                        'fill' => 'start',
+                        'tension' => 0.4,
                         'yAxisID' => 'y1',
-                        'type' => 'line',
                     ],
                 ],
                 'labels' => $labels,
@@ -88,17 +91,38 @@ class SalesChartWidget extends ChartWidget
 
     protected function getType(): string
     {
-        return 'bar';
+        return 'line';
     }
 
     protected function getOptions(): array
     {
         return [
+            'elements' => [
+                'point' => [
+                    'radius' => 0,
+                    'hitRadius' => 10,
+                    'hoverRadius' => 4,
+                ],
+            ],
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                    'position' => 'bottom',
+                ],
+            ],
             'scales' => [
+                'x' => [
+                    'grid' => [
+                        'display' => false,
+                    ],
+                ],
                 'y' => [
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'left',
+                    'grid' => [
+                        'color' => 'rgba(255, 255, 255, 0.05)',
+                    ],
                 ],
                 'y1' => [
                     'type' => 'linear',
