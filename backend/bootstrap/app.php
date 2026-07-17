@@ -60,8 +60,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'error' => [
                         'code' => $status === 404 ? 'NOT_FOUND' : ($status >= 500 ? 'INTERNAL_ERROR' : 'API_ERROR'),
-                        'message' => $status >= 500 ? 'Erro interno no servidor.' : $e->getMessage(),
-                        'trace_id' => $request->header('X-Correlation-ID', uniqid()),
+                        'message' => $e->getMessage() ?: 'Erro interno no servidor.',
+                        'trace_id' => \Illuminate\Support\Str::uuid()->toString(),
                         'details' => config('app.debug') ? ['exception' => get_class($e), 'file' => $e->getFile(), 'line' => $e->getLine()] : []
                     ]
                 ], $status);
