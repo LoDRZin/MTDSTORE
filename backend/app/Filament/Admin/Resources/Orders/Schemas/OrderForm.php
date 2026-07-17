@@ -23,7 +23,9 @@ class OrderForm
                                 ->required(),
                             Select::make('customer_id')
                                 ->label('Cliente')
-                                ->relationship('customer', 'name'),
+                                ->relationship('customer', 'name')
+                                ->searchable()
+                                ->preload(),
                             Select::make('status')
                                 ->label('Status do Pedido')
                                 ->options([
