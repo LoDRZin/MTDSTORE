@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import AddToCartButton from "@/components/AddToCartButton";
 import ProductPurchaseArea from "@/components/ProductPurchaseArea";
 import SectionContainer from "@/components/ui/SectionContainer";
 import { Package, TrendingUp, ShieldCheck, ChevronRight } from "lucide-react";
