@@ -10,6 +10,16 @@ const nextConfig = {
         hostname: 'lh3.googleusercontent.com',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'mtdstore.test',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mtdstore.test',
+        pathname: '/**',
+      },
     ],
   },
 };

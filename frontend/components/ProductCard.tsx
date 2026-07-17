@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCartStore } from "@/store/cart";
 import { ShoppingCart, Eye, Package, TrendingUp, Flame } from "lucide-react";
 import { motion } from "framer-motion";
@@ -12,6 +13,7 @@ interface Product {
   description: string;
   price: number;
   available_count: number;
+  image_url?: string;
 }
 
 interface ProductCardProps {
@@ -59,14 +61,24 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
       {/* Image Area */}
       <div className="relative h-48 bg-surface-800 overflow-hidden shrink-0 flex items-center justify-center">
-        {/* Placeholder Emoji - Replace with real <Image> when backend supports images */}
-        <motion.span 
-          whileHover={{ scale: 1.1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-6xl filter grayscale opacity-70"
-        >
-          {icon}
-        </motion.span>
+        {/* Product Image */}
+        {product.image_url ? (
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <motion.span 
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-6xl filter grayscale opacity-70"
+          >
+            {icon}
+          </motion.span>
+        )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-surface-900 via-transparent to-transparent pointer-events-none" />
 

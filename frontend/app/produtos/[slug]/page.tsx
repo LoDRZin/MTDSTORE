@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
 import SectionContainer from "@/components/ui/SectionContainer";
@@ -12,6 +13,7 @@ interface Product {
   description: string;
   price: number;
   available_count: number;
+  image_url?: string;
 }
 
 type Props = {
@@ -85,9 +87,21 @@ export default async function ProductPage({ params }: Props) {
         <div className="lg:col-span-7">
           <div className="bg-surface-900 border border-white/5 rounded-3xl overflow-hidden aspect-[4/3] flex items-center justify-center relative shadow-card group">
              <div className="absolute inset-0 bg-gradient-to-tr from-surface-950 via-transparent to-brand-900/20 opacity-50 pointer-events-none" />
-             <span className="text-9xl filter grayscale opacity-50 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700">
-               {icon}
-             </span>
+             
+             {product.image_url ? (
+               <Image
+                 src={product.image_url}
+                 alt={product.name}
+                 fill
+                 className="object-cover group-hover:scale-105 transition-all duration-700"
+                 sizes="(max-width: 1024px) 100vw, 60vw"
+                 priority
+               />
+             ) : (
+               <span className="text-9xl filter grayscale opacity-50 group-hover:scale-110 group-hover:opacity-100 transition-all duration-700">
+                 {icon}
+               </span>
+             )}
              {isOutOfStock && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
                    <span className="bg-red-500/20 text-red-500 border border-red-500/30 px-6 py-2 rounded-full font-bold uppercase tracking-widest text-lg rotate-12">
