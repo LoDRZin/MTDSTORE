@@ -39,11 +39,11 @@ class SalesChartWidget extends ChartWidget
 
             // Agrupa por dia usando truncamento compatível com o banco
             $sales = $query->select(
-                DB::raw('DATE(created_at) as date'),
+                DB::raw('CAST(created_at AS DATE) as date'),
                 DB::raw('SUM(total) as revenue'),
                 DB::raw('COUNT(*) as count')
             )
-            ->groupBy(DB::raw('DATE(created_at)'))
+            ->groupBy(DB::raw('CAST(created_at AS DATE)'))
             ->orderBy('date')
             ->get();
 
