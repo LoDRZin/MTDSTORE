@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import ProductPurchaseArea from "@/components/ProductPurchaseArea";
 import SectionContainer from "@/components/ui/SectionContainer";
-import { Package, TrendingUp, ShieldCheck, ChevronRight } from "lucide-react";
+import { ShieldCheck, ChevronRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkEmoji from "remark-emoji";
@@ -85,7 +85,6 @@ export default async function ProductPage({ params }: Props) {
   }
 
   const isOutOfStock = product.available_count === 0;
-  const isLowStock = product.available_count > 0 && product.available_count <= 5;
   const icons = ["🎮", "💻", "🔑", "⚡", "🛡️", "🎯"];
   const icon = icons[product.id % icons.length];
 

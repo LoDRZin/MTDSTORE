@@ -1,7 +1,7 @@
 "use client";
 
 import { useCartStore } from "@/store/cart";
-import PremiumButton from "./ui/PremiumButton";
+
 import { ShoppingCart } from "lucide-react";
 
 interface AddToCartButtonProps {
@@ -18,7 +18,6 @@ interface AddToCartButtonProps {
 
 export default function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
-  const toggleCart = useCartStore((state) => state.toggleCart);
 
   const handleAddToCart = () => {
     addItem({
