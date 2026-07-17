@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PremiumButton from "@/components/ui/PremiumButton";
 import SectionContainer from "@/components/ui/SectionContainer";
-import { ShieldCheck, Mail, CreditCard, QrCode, ShoppingCart } from "lucide-react";
+import { ShieldCheck, Mail, CreditCard, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
 import { apiFetch } from "@/lib/api";
 
