@@ -39,11 +39,14 @@ class MercadoPagoGateway implements PaymentGatewayInterface
 
     public function verifyWebhookSignature(Request $request): bool
     {
-        // Simple verification for MP Webhook or Secret Token
         $secretToken = config('services.mercadopago.webhook_secret');
+        if (!$request->hasHeader('x-signature')) {
+            return false;
+        }
+        
+        // Simplified for example. Real MP signature verification requires hashing.
         if ($secretToken && $request->header('x-signature') !== $secretToken) {
-            // Simplified for example. Real MP signature verification requires hashing.
-            // return false; 
+            return false; 
         }
         return true;
     }

@@ -3,14 +3,13 @@
 namespace App\Gateways;
 
 use App\Models\Order;
-use Illuminate\Http\Request;
 use App\DTOs\PaymentIntentDTO;
-use App\DTOs\WebhookEventDTO;
+use Illuminate\Http\Request;
 
 interface PaymentGatewayInterface
 {
     /**
-     * Create a payment charge/intent for the given order.
+     * Cria uma intenção de cobrança no provedor de pagamento.
      *
      * @param Order $order
      * @return PaymentIntentDTO
@@ -18,7 +17,8 @@ interface PaymentGatewayInterface
     public function createCharge(Order $order): PaymentIntentDTO;
 
     /**
-     * Verify the webhook signature from the gateway.
+     * Valida a assinatura de um webhook recebido.
+     * Deve ser chamado antes de processar qualquer payload.
      *
      * @param Request $request
      * @return bool
@@ -26,15 +26,16 @@ interface PaymentGatewayInterface
     public function verifyWebhookSignature(Request $request): bool;
 
     /**
-     * Handle the incoming webhook and return a standard DTO.
+     * Processa o payload de um webhook validado.
+     * Espera-se que lance exceções se falhar, caso contrário o processamento é considerado bem-sucedido.
      *
      * @param Request $request
      * @return WebhookEventDTO
      */
-    public function handleWebhook(Request $request): WebhookEventDTO;
+    public function handleWebhook(Request $request): \App\DTOs\WebhookEventDTO;
 
     /**
-     * Refund a previously paid order.
+     * Reembolsa total ou parcialmente um pedido pago.
      *
      * @param Order $order
      * @return bool

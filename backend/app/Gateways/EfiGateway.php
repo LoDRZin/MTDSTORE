@@ -80,9 +80,12 @@ class EfiGateway implements PaymentGatewayInterface
 
     public function verifyWebhookSignature(Request $request): bool
     {
-        // A EFI geralmente não usa assinatura HMAC, ela exige mTLS na rota de webhook (configurado via Nginx/Apache)
-        // Ou envia via post normal em ambiente dev sem mTLS e verificamos um token.
-        // Vamos simplificar retornando true (assumindo Nginx block)
+        // Efi does not use a simple signature header. It requires mTLS or IP whitelist.
+        // For the sake of the contract, we can check if it came with an expected header or payload
+        if (!$request->hasHeader('x-efi-signature') && empty($request->getContent())) {
+            return false;
+        }
+
         return true;
     }
 
