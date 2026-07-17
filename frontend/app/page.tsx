@@ -19,6 +19,7 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     if (searchParams.min_price) params.append("min_price", String(searchParams.min_price));
     if (searchParams.max_price) params.append("max_price", String(searchParams.max_price));
     if (searchParams.in_stock) params.append("in_stock", String(searchParams.in_stock));
+    if (searchParams.page) params.append("page", String(searchParams.page));
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
@@ -26,9 +27,9 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     });
     if (!res.ok) throw new Error("Failed to fetch products");
     const data = await res.json();
-    return data.data || [];
+    return { products: data.data || [], meta: data.meta || null };
   } catch {
-    return [];
+    return { products: [], meta: null };
   }
 }
 
@@ -74,7 +75,7 @@ export default async function Home({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const products = await getProducts(searchParams);
+  const { products, meta } = await getProducts(searchParams);
   const categories = await getCategories();
 
   return (
@@ -153,7 +154,7 @@ export default async function Home({
           <div className="flex flex-col lg:flex-row gap-8 items-start">
             <Suspense fallback={<div className="w-full text-center py-10">Carregando...</div>}>
               <FilterSidebar categories={categories} />
-              <ProductList initialProducts={products} />
+              <ProductList initialProducts={products} categories={categories} meta={meta} />
             </Suspense>
           </div>
         </div>
