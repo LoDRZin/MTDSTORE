@@ -121,4 +121,15 @@ class Product extends Model
     {
         return $query->where('price', '<=', $max);
     }
+
+    /** Updates the base price to the lowest variant price */
+    public function updateBasePrice()
+    {
+        if ($this->variants()->exists()) {
+            $minPrice = $this->variants()->min('price');
+            if ($minPrice !== null && $minPrice != $this->price) {
+                $this->update(['price' => $minPrice]);
+            }
+        }
+    }
 }

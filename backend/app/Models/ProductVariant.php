@@ -24,4 +24,21 @@ class ProductVariant extends Model
     {
         return $this->hasMany(ProductStockItem::class, 'variant_id');
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($variant) {
+            if ($variant->product) {
+                $variant->product->updateBasePrice();
+            }
+        });
+
+        static::deleted(function ($variant) {
+            if ($variant->product) {
+                $variant->product->updateBasePrice();
+            }
+        });
+    }
 }

@@ -63,18 +63,33 @@ class ProductForm
                                                 ->label('Nome da Variação')
                                                 ->required()
                                                 ->placeholder('Ex: Plano Mensal, Conta Level Max'),
-                                            TextInput::make('price')
+                                                TextInput::make('price')
                                                 ->label('Preço da Variação')
                                                 ->numeric()
                                                 ->minValue(0)
                                                 ->prefix('R$')
-                                                ->required(),
+                                                ->required()
+                                                ->live(onBlur: true)
+                                                ->afterStateUpdated(function (\Filament\Forms\Get $get, callable $set) {
+                                                    $variants = $get('../../variants');
+                                                    if (is_array($variants) && count($variants) > 0) {
+                                                        $prices = array_map(fn($v) => (float)($v['price'] ?? 0), $variants);
+                                                        $set('../../price', min($prices));
+                                                    }
+                                                }),
                                         ]),
                                     ])
                                     ->defaultItems(0)
                                     ->reorderable(true)
                                     ->collapsible()
-                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null),
+                                    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (callable $set, $state) {
+                                        if (is_array($state) && count($state) > 0) {
+                                            $prices = array_map(fn($v) => (float)($v['price'] ?? 0), $state);
+                                            $set('price', min($prices));
+                                        }
+                                    }),
                             ]),
                     ]),
 
@@ -90,7 +105,10 @@ class ProductForm
                                         ->required()
                                         ->numeric()
                                         ->minValue(0)
-                                        ->prefix('R$'),
+                                        ->prefix('R$')
+                                        ->readOnly(fn (\Filament\Forms\Get $get) => count($get('variants') ?? []) > 0)
+                                        ->helperText(fn (\Filament\Forms\Get $get) => count($get('variants') ?? []) > 0 ? 'Calculado automaticamente pela menor variação.' : null)
+                                        ->dehydrated(),
                                     Select::make('status')
                                         ->label('Status do Produto')
                                         ->options([
