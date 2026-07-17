@@ -68,9 +68,7 @@ class CouponForm
                                 ->label('Usos Atuais')
                                 ->numeric()
                                 ->default(0)
-                                ->disabled()
-                                ->dehydrated(false)
-                                ->helperText('Controlado automaticamente pelo sistema.'),
+                                ->helperText('Número de vezes que este cupom já foi utilizado.'),
                             DateTimePicker::make('expires_at')
                                 ->label('Data de Expiração'),
                             TextInput::make('min_order_value')

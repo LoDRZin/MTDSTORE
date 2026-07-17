@@ -20,12 +20,10 @@ class OrderForm
                         Grid::make(2)->schema([
                             TextInput::make('uuid')
                                 ->label('ID do Pedido (UUID)')
-                                ->disabled()
                                 ->required(),
                             Select::make('customer_id')
                                 ->label('Cliente')
-                                ->relationship('customer', 'name')
-                                ->disabled(),
+                                ->relationship('customer', 'name'),
                             Select::make('status')
                                 ->label('Status do Pedido')
                                 ->options([
@@ -35,17 +33,14 @@ class OrderForm
                                     'cancelled' => 'Cancelado',
                                 ])
                                 ->required()
-                                ->default('pending')
-                                ->disabled(),
+                                ->default('pending'),
                             TextInput::make('total')
                                 ->label('Valor Total')
                                 ->required()
                                 ->numeric()
-                                ->prefix('R$')
-                                ->disabled(),
+                                ->prefix('R$'),
                             TextInput::make('external_reference')
                                 ->label('Referência Externa (Gateway)')
-                                ->disabled()
                                 ->columnSpanFull(),
                         ]),
                     ]),

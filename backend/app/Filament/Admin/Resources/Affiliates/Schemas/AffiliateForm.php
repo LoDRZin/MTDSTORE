@@ -52,9 +52,7 @@ class AffiliateForm
                                 ->numeric()
                                 ->default(0.0)
                                 ->prefix('R$')
-                                ->disabled()
-                                ->dehydrated(false)
-                                ->helperText('O saldo é atualizado automaticamente pelas vendas.'),
+                                ->helperText('O saldo é atualizado automaticamente pelas vendas, mas pode ser editado pelo admin.'),
                             TextInput::make('commission_rate')
                                 ->label('Taxa de Comissão (%)')
                                 ->required()
