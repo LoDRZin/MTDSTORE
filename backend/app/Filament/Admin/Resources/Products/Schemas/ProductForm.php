@@ -113,8 +113,8 @@ class ProductForm
                                         ->label('Arquivo para Download')
                                         ->directory('downloads')
                                         ->preserveFilenames()
-                                        ->visible(fn (\Filament\Forms\Get $get) => $get('delivery_type') === 'file_download')
-                                        ->required(fn (\Filament\Forms\Get $get) => $get('delivery_type') === 'file_download')
+                                        ->visible(fn ($get) => $get('delivery_type') === 'file_download')
+                                        ->required(fn ($get) => $get('delivery_type') === 'file_download')
                                         ->columnSpanFull(),
                                     FileUpload::make('image_url')
                                         ->label('Imagem do Produto')
