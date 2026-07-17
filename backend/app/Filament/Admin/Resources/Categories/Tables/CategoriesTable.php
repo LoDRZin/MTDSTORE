@@ -60,6 +60,7 @@ class CategoriesTable
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('order');
+            ->defaultSort('order')
+            ->reorderable('order');
     }
 }
