@@ -53,30 +53,8 @@ class CategorizeProducts extends Command
             'internals_fivem' => $categories->first(fn($c) => stripos($c->name, 'internal') !== false && stripos($c->name, 'fivem') !== false),
             'externals_fivem' => $categories->first(fn($c) => stripos($c->name, 'external') !== false && stripos($c->name, 'fivem') !== false),
             'cheats_outros' => $categories->first(fn($c) => stripos($c->name, 'cheat') !== false && stripos($c->name, 'outro') !== false),
-            'contas' => $categories->first(fn($c) => stripos($c->name, 'conta') !== false),
-            'outros' => $categories->first(fn($c) => stripos($c->name, 'outro') !== false && stripos($c->name, 'cheat') === false),
-        ];
-
-        // Ensure we have a default "Outros Produtos" category
-        if (!$catObjects['outros']) {
-             $catObjects['outros'] = Category::firstOrCreate(['name' => 'OUTROS PRODUTOS', 'slug' => 'outros-produtos']);
-        }
-
         $products = Product::all();
         $count = 0;
-
-        foreach ($products as $product) {
-            $text = strtolower($product->name . ' ' . $product->description);
-            $assignedCategories = [];
-
-            // Spoofer
-            if ($this->hasKeyword($text, $map['spoofer'])) {
-                if ($catObjects['spoofers']) $assignedCategories[] = $catObjects['spoofers']->id;
-            }
-
-            // FiveM Internals / Externals
-            if ($this->hasKeyword($text, $map['fivem']) || $this->hasKeyword($text, ['mod menu', 'lyra', 'eulen'])) {
-                if ($this->hasKeyword($text, $map['internal'])) {
                     if ($catObjects['internals_fivem']) $assignedCategories[] = $catObjects['internals_fivem']->id;
                 } else {
                     // Default to external if not explicitly internal for FiveM, or if explicitly external

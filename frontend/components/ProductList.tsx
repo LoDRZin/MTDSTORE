@@ -93,7 +93,7 @@ export default function ProductList({ initialProducts, categories, meta }: Produ
   const isCategoryView = !searchParam && !categoryParam && !searchParams.get("in_stock") && !searchParams.get("min_price");
 
   return (
-    <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0 min-h-[100vh]">
       {/* Search */}
       <div className="relative mb-8">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" aria-hidden="true">
