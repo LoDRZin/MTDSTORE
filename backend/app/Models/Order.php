@@ -20,7 +20,22 @@ class Order extends Model
 
     protected $casts = [
         'total' => 'decimal:2',
+        'refunded_amount' => 'decimal:2',
+        'status' => 'string',
+        'external_reference' => 'string',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($order) {
+            $validStatuses = ['pending', 'awaiting_payment', 'paid', 'failed', 'refunded', 'partially_refunded', 'chargeback'];
+            if (!in_array($order->status, $validStatuses)) {
+                throw new \InvalidArgumentException("Status de pedido inválido: {$order->status}");
+            }
+        });
+    }
 
     public function customer(): BelongsTo
     {

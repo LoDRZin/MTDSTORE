@@ -25,7 +25,20 @@ class ProductStockItem extends Model
 
     protected $casts = [
         'value' => 'encrypted',
+        'status' => 'string',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($item) {
+            $validStatuses = ['available', 'sold', 'revoked'];
+            if (!in_array($item->status, $validStatuses)) {
+                throw new \InvalidArgumentException("Status de estoque inválido: {$item->status}");
+            }
+        });
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

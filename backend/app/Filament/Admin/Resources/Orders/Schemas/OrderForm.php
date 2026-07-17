@@ -27,14 +27,18 @@ class OrderForm
                                 ->label('Cliente')
                                 ->relationship('customer', 'name')
                                 ->searchable()
-                                ->preload(),
+                                ->preload()
+                                ->nullable(),
                             Select::make('status')
                                 ->label('Status do Pedido')
                                 ->options([
                                     'pending' => 'Pendente',
+                                    'awaiting_payment' => 'Aguardando Pagamento',
                                     'paid' => 'Pago',
                                     'failed' => 'Falhou',
-                                    'cancelled' => 'Cancelado',
+                                    'refunded' => 'Reembolsado',
+                                    'partially_refunded' => 'Parcialmente Reembolsado',
+                                    'chargeback' => 'Chargeback',
                                 ])
                                 ->required()
                                 ->default('pending'),
@@ -42,9 +46,11 @@ class OrderForm
                                 ->label('Valor Total')
                                 ->required()
                                 ->numeric()
+                                ->minValue(0)
                                 ->prefix('R$'),
                             TextInput::make('external_reference')
                                 ->label('Referência Externa (Gateway)')
+                                ->nullable()
                                 ->columnSpanFull(),
                         ]),
                     ]),

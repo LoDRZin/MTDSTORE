@@ -33,7 +33,26 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'status' => 'string',
+        'description' => 'string',
+        'image_url' => 'string',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($product) {
+            $validStatuses = ['draft', 'active', 'archived'];
+            if (!in_array($product->status, $validStatuses)) {
+                throw new \InvalidArgumentException("Status inválido: {$product->status}. Válidos: " . implode(', ', $validStatuses));
+            }
+            
+            if ($product->price < 0) {
+                throw new \InvalidArgumentException("Preço não pode ser negativo");
+            }
+        });
+    }
 
     // ─── Relationships ───────────────────────────────────────────
 

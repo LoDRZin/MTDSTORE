@@ -58,6 +58,13 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        'admin_errors' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/admin-errors.log'),
+            'level' => 'error',
+            'days' => 14,
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),

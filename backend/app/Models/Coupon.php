@@ -34,7 +34,24 @@ class Coupon extends Model
         'active'                  => 'boolean',
         'min_purchase_amount'     => 'decimal:2',
         'allowed_payment_methods' => 'array',
+        'type'                    => 'string',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saving(function ($coupon) {
+            $validTypes = ['percentage', 'fixed'];
+            if (!in_array($coupon->type, $validTypes)) {
+                throw new \InvalidArgumentException("Tipo de desconto de cupom inválido: {$coupon->type}");
+            }
+            
+            if ($coupon->value < 0) {
+                throw new \InvalidArgumentException("O valor do cupom não pode ser negativo");
+            }
+        });
+    }
 
     // ─── Relationships ───────────────────────────────────────────
 

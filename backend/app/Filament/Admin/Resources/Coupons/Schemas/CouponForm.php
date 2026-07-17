@@ -41,10 +41,11 @@ class CouponForm
                                 ])
                                 ->required()
                                 ->live(),
-                            TextInput::make('value')
+                                TextInput::make('value')
                                 ->label('Valor do Desconto')
                                 ->required()
                                 ->numeric()
+                                ->minValue(0)
                                 ->prefix(fn (callable $get) => $get('type') === 'percentage' ? null : 'R$')
                                 ->suffix(fn (callable $get) => $get('type') === 'percentage' ? '%' : null),
                             Toggle::make('active')
@@ -62,22 +63,33 @@ class CouponForm
                             TextInput::make('max_uses')
                                 ->label('Máximo de Usos (Total)')
                                 ->numeric()
+                                ->integer()
+                                ->minValue(1)
+                                ->nullable()
                                 ->placeholder('Ilimitado')
                                 ->helperText('Deixe em branco para uso ilimitado.'),
                             TextInput::make('uses_count')
                                 ->label('Usos Atuais')
                                 ->numeric()
+                                ->integer()
+                                ->minValue(0)
                                 ->default(0)
                                 ->helperText('Número de vezes que este cupom já foi utilizado.'),
                             DateTimePicker::make('expires_at')
-                                ->label('Data de Expiração'),
+                                ->label('Data de Expiração')
+                                ->nullable()
+                                ->native(false),
                             TextInput::make('min_order_value')
                                 ->label('Valor Mín. do Pedido')
                                 ->numeric()
+                                ->minValue(0)
+                                ->nullable()
                                 ->prefix('R$'),
                             TextInput::make('max_discount_value')
                                 ->label('Desconto Máximo')
                                 ->numeric()
+                                ->minValue(0)
+                                ->nullable()
                                 ->prefix('R$')
                                 ->helperText('Limita o valor máximo (útil para %)')
                                 ->hidden(fn (callable $get) => $get('type') !== 'percentage'),
