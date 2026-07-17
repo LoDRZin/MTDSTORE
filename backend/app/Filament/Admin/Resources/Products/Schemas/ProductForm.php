@@ -70,17 +70,21 @@ class ProductForm
                                                 ->prefix('R$')
                                                 ->required()
                                                 ->live(onBlur: true)
-                                                ->afterStateUpdated(function (\Filament\Forms\Get $get, callable $set) {
+                                                ->afterStateUpdated(function ($get, callable $set) {
                                                     $variants = $get('../../variants');
                                                     if (is_array($variants) && count($variants) > 0) {
                                                         $prices = array_map(fn($v) => (float)($v['price'] ?? 0), $variants);
                                                         $set('../../price', min($prices));
+                                                        
+                                                        uasort($variants, function ($a, $b) {
+                                                            return ((float)($b['price'] ?? 0)) <=> ((float)($a['price'] ?? 0));
+                                                        });
+                                                        $set('../../variants', $variants);
                                                     }
                                                 }),
                                         ]),
                                     ])
                                     ->defaultItems(0)
-                                    ->reorderable(true)
                                     ->collapsible()
                                     ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
                                     ->live(onBlur: true)
@@ -88,6 +92,11 @@ class ProductForm
                                         if (is_array($state) && count($state) > 0) {
                                             $prices = array_map(fn($v) => (float)($v['price'] ?? 0), $state);
                                             $set('price', min($prices));
+                                            
+                                            uasort($state, function ($a, $b) {
+                                                return ((float)($b['price'] ?? 0)) <=> ((float)($a['price'] ?? 0));
+                                            });
+                                            $set('variants', $state);
                                         }
                                     }),
                             ]),
@@ -106,8 +115,8 @@ class ProductForm
                                         ->numeric()
                                         ->minValue(0)
                                         ->prefix('R$')
-                                        ->readOnly(fn (\Filament\Forms\Get $get) => count($get('variants') ?? []) > 0)
-                                        ->helperText(fn (\Filament\Forms\Get $get) => count($get('variants') ?? []) > 0 ? 'Calculado automaticamente pela menor variação.' : null)
+                                        ->readOnly(fn ($get) => count($get('variants') ?? []) > 0)
+                                        ->helperText(fn ($get) => count($get('variants') ?? []) > 0 ? 'Calculado automaticamente pela menor variação.' : null)
                                         ->dehydrated(),
                                     Select::make('status')
                                         ->label('Status do Produto')

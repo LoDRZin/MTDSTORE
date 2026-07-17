@@ -64,7 +64,7 @@ class Product extends Model
 
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(ProductVariant::class)->orderByDesc('price');
     }
 
     public function reviews()
