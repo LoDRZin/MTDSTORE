@@ -54,6 +54,14 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            // DEBUG TEMPORÁRIO PARA DESCOBRIR O 500 NO FILAMENT
+            if (str_starts_with($request->path(), 'admin')) {
+                return response(
+                    "Error: " . get_class($e) . "\nMessage: " . $e->getMessage() . "\nFile: " . $e->getFile() . ":" . $e->getLine() . "\n\nTrace:\n" . $e->getTraceAsString(),
+                    500
+                )->header('Content-Type', 'text/plain');
+            }
+
             if ($request->is('api/*') || $request->wantsJson()) {
                 $status = $e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface ? $e->getStatusCode() : 500;
                 
