@@ -14,6 +14,7 @@ interface Product {
   price: number;
   available_count: number;
   image_url?: string;
+  has_variants?: boolean;
 }
 
 interface ProductCardProps {
@@ -52,15 +53,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       className={`bg-surface-900 border rounded-2xl overflow-hidden group relative flex flex-col h-full ${
         isOutOfStock ? "opacity-60 border-white/5" : "border-white/10"
       }`}
-      aria-label={`Produto: ${product.name}`}
     >
+      <Link href={`/produtos/${product.slug}`} className="flex flex-col h-full absolute inset-0 z-0" aria-label={`Ver detalhes de ${product.name}`} />
+      
       {/* Shimmer border effect on hover */}
       {!isOutOfStock && (
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-brand-600/0 via-brand-600/0 to-brand-600/0 group-hover:via-brand-600/20 transition-all duration-500 pointer-events-none" />
       )}
 
       {/* Image Area */}
-      <div className="relative h-48 bg-surface-800 overflow-hidden shrink-0 flex items-center justify-center">
+      <div className="relative h-48 bg-surface-800 overflow-hidden shrink-0 flex items-center justify-center pointer-events-none">
         {/* Product Image */}
         {product.image_url ? (
           <Image
@@ -102,13 +104,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1 z-10">
+      <div className="p-5 flex flex-col flex-1 z-10 pointer-events-none">
         <h3 className="font-display font-semibold text-lg text-white mb-auto line-clamp-2">
           {product.name}
         </h3>
 
         <div className="mt-4 mb-4">
           <p className="text-2xl font-bold text-white tracking-tight">
+            {product.has_variants && <span className="text-sm font-normal text-text-tertiary mr-1">A partir de</span>}
             {formatPrice(product.price)}
           </p>
           <p className="text-xs text-text-tertiary font-medium">À vista no PIX</p>
@@ -131,25 +134,22 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 mt-auto">
-          <Link
-            href={`/produtos/${product.slug}`}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-surface-800 hover:bg-surface-700 text-white text-sm font-semibold py-2.5 rounded-xl border border-white/5 transition-colors"
-            aria-label={`Ver detalhes de ${product.name}`}
-          >
-            <Eye size={16} /> Detalhes
-          </Link>
+        <div className="flex gap-2 mt-auto pointer-events-auto">
           <motion.button
             whileTap={!isOutOfStock ? { scale: 0.95 } : undefined}
             disabled={isOutOfStock}
-            onClick={handleAddToCart}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleAddToCart();
+            }}
             className={`flex-1 flex items-center justify-center gap-1.5 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-brand-sm border border-brand-500/30 ${
               isOutOfStock 
                 ? "bg-surface-800 text-text-tertiary border-white/5 cursor-not-allowed shadow-none" 
                 : "bg-gradient-to-r from-brand-600 to-brand-800 hover:from-brand-500 hover:to-brand-700 hover:shadow-brand-md"
             }`}
           >
-            <ShoppingCart size={16} /> Comprar
+            <ShoppingCart size={16} /> Comprar Direto
           </motion.button>
         </div>
       </div>

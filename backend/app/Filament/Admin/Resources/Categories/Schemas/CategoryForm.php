@@ -40,6 +40,14 @@ class CategoryForm
                                 ->image()
                                 ->directory('categories')
                                 ->columnSpanFull(),
+                            Select::make('products')
+                                ->label('Produtos Vinculados')
+                                ->multiple()
+                                ->relationship('products', 'name')
+                                ->preload()
+                                ->searchable()
+                                ->columnSpanFull()
+                                ->helperText('Selecione os produtos que farão parte desta categoria.'),
                         ]),
                     ]),
 

@@ -29,7 +29,14 @@ type Props = {
 
 async function getProduct(slug: string): Promise<Product | null> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    
+    // Se for URL relativa, tenta montar absoluta (necessário para Server Components no Next.js)
+    if (apiUrl.startsWith("/")) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://mtdstore.test";
+      apiUrl = `${baseUrl}${apiUrl}`;
+    }
+
     const res = await fetch(`${apiUrl}/products/${slug}`, {
       cache: "no-store"
     });

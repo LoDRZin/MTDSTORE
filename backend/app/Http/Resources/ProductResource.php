@@ -19,13 +19,19 @@ class ProductResource extends JsonResource
         $inventoryService = app(InventoryService::class);
         $availableCount = $inventoryService->getAvailableCount($this->id);
 
+        $displayPrice = (float) $this->price;
+        if ($this->relationLoaded('variants') && $this->variants->isNotEmpty()) {
+            $displayPrice = (float) $this->variants->min('price');
+        }
+
         return [
             'id'              => $this->id,
             'name'            => $this->name,
             'slug'            => $this->slug,
             'description'     => $this->description,
             'image_url'       => $this->image_url ? Storage::url($this->image_url) : null,
-            'price'           => (float) $this->price,
+            'price'           => $displayPrice,
+            'has_variants'    => $this->relationLoaded('variants') && $this->variants->isNotEmpty(),
             'available_count' => $availableCount,
             'is_in_stock'     => $availableCount > 0,
             'categories'      => $this->whenLoaded('categories', fn () =>
