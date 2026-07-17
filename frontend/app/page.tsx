@@ -25,11 +25,14 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
       cache: "no-store",
     });
-    if (!res.ok) throw new Error("Failed to fetch products");
+    if (!res.ok) {
+      const errText = await res.text();
+      return { products: [{ id: 999, name: `API Error: ${res.status}`, slug: "err", description: errText.substring(0, 50), price: 0, available_count: 0 }], meta: null };
+    }
     const data = await res.json();
     return { products: data.data || [], meta: data.meta || null };
-  } catch {
-    return { products: [], meta: null };
+  } catch (err: any) {
+    return { products: [{ id: 998, name: `Fetch Catch: ${err.message}`, slug: "catch-err", description: "", price: 0, available_count: 0 }], meta: null };
   }
 }
 
@@ -39,11 +42,14 @@ async function getCategories() {
     const res = await fetch(`${apiUrl}/categories`, {
       cache: "no-store",
     });
-    if (!res.ok) throw new Error("Failed to fetch categories");
+    if (!res.ok) {
+      const errText = await res.text();
+      return [{ id: 999, name: `API Error: ${res.status} | URL: ${apiUrl} | Response: ${errText.substring(0, 100)}`, slug: "error", image_url: null }];
+    }
     const data = await res.json();
     return data.data || [];
-  } catch {
-    return [];
+  } catch (err: any) {
+    return [{ id: 998, name: `Fetch Catch Error: ${err.message}`, slug: "catch-error", image_url: null }];
   }
 }
 
