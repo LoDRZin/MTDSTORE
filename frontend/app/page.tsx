@@ -31,8 +31,9 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     }
     const data = await res.json();
     return { products: data.data || [], meta: data.meta || null };
-  } catch (err: any) {
-    return { products: [{ id: 998, name: `Fetch Catch: ${err.message}`, slug: "catch-err", description: "", price: 0, available_count: 0 }], meta: null };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { products: [{ id: 998, name: `Fetch Catch: ${msg}`, slug: "catch-err", description: "", price: 0, available_count: 0 }], meta: null };
   }
 }
 
@@ -48,8 +49,9 @@ async function getCategories() {
     }
     const data = await res.json();
     return data.data || [];
-  } catch (err: any) {
-    return [{ id: 998, name: `Fetch Catch Error: ${err.message}`, slug: "catch-error", image_url: null }];
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return [{ id: 998, name: `Fetch Catch Error: ${msg}`, slug: "catch-error", image_url: null }];
   }
 }
 
