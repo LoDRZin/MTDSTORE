@@ -22,6 +22,21 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasRole('super_admin') || $this->hasRole('admin');
     }
 
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'customer_id');
+    }
+
+    public function visits()
+    {
+        return $this->hasMany(Visit::class, 'customer_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -34,6 +49,8 @@ class User extends Authenticatable implements FilamentUser
         'google_id',
         'avatar',
         'cart_data',
+        'banned_at',
+        'ban_reason',
     ];
 
     /**
@@ -62,6 +79,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'cart_data' => 'array',
+            'banned_at' => 'datetime',
         ];
     }
 }

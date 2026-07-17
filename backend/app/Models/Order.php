@@ -13,6 +13,7 @@ class Order extends Model
         'customer_id',
         'status',
         'total',
+        'refunded_amount',
         'external_reference',
         'coupon_id',
     ];
@@ -29,6 +30,11 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function coupon(): BelongsTo

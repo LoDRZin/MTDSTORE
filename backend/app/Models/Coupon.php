@@ -20,16 +20,20 @@ class Coupon extends Model
         'uses_count',
         'expires_at',
         'active',
+        'min_purchase_amount',
+        'allowed_payment_methods',
     ];
 
     protected $casts = [
-        'value'              => 'decimal:2',
-        'min_order_value'    => 'decimal:2',
-        'max_discount_value' => 'decimal:2',
-        'max_uses'           => 'integer',
-        'uses_count'         => 'integer',
-        'expires_at'         => 'datetime',
-        'active'             => 'boolean',
+        'value'                   => 'decimal:2',
+        'min_order_value'         => 'decimal:2',
+        'max_discount_value'      => 'decimal:2',
+        'max_uses'                => 'integer',
+        'uses_count'              => 'integer',
+        'expires_at'              => 'datetime',
+        'active'                  => 'boolean',
+        'min_purchase_amount'     => 'decimal:2',
+        'allowed_payment_methods' => 'array',
     ];
 
     // ─── Relationships ───────────────────────────────────────────
@@ -41,6 +45,16 @@ class Coupon extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'coupon_product');
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function allowedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'coupon_allowed_user');
     }
 
     // ─── Business Logic ──────────────────────────────────────────

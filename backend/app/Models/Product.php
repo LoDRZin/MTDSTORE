@@ -20,6 +20,8 @@ class Product extends Model
         'image_url',
         'price',
         'status',
+        'post_purchase_instructions',
+        'delivery_type',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -39,6 +41,16 @@ class Product extends Model
     public function stockItems(): HasMany
     {
         return $this->hasMany(ProductStockItem::class);
+    }
+
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 
     public function categories(): BelongsToMany

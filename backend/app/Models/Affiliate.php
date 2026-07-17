@@ -9,13 +9,19 @@ class Affiliate extends Model
     protected $fillable = [
         'user_id',
         'code',
-        'balance',
         'commission_rate',
-        'active',
+        'balance',
+        'min_withdrawal',
+        'cookie_duration_days',
     ];
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(AffiliateWithdrawal::class);
     }
 }

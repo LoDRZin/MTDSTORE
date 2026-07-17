@@ -51,9 +51,14 @@ class Category extends Model
     }
 
     /** Products assigned to this category */
-    public function products(): BelongsToMany
+    public function products()
     {
-        return $this->belongsToMany(Product::class, 'category_product');
+        return $this->belongsToMany(Product::class);
+    }
+
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class);
     }
 
     // ─── Scopes ──────────────────────────────────────────────────
