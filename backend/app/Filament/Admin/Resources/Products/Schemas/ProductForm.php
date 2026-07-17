@@ -37,6 +37,7 @@ class ProductForm
                                         ->label('URL Slug')
                                         ->required()
                                         ->unique(ignoreRecord: true)
+                                        ->dehydrateStateUsing(fn ($state) => Str::slug($state))
                                         ->helperText('Ex: conta-de-netflix'),
                                     Textarea::make('description')
                                         ->label('Descrição Detalhada')
