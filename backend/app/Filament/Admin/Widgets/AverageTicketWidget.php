@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 class AverageTicketWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
 
     protected function getStats(): array
     {

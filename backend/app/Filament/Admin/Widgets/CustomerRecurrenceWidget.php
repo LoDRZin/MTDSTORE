@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Cache;
 class CustomerRecurrenceWidget extends BaseWidget
 {
     protected static ?int $sort = 2;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
 
     protected function getStats(): array
     {

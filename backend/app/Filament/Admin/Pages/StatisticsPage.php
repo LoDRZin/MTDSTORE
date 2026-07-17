@@ -9,13 +9,32 @@ use App\Filament\Admin\Widgets;
 
 class StatisticsPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
-    protected static ?string $navigationLabel = 'Estatísticas';
-    protected static ?string $title = 'Estatísticas Avançadas';
-    protected static ?string $navigationGroup = 'Vendas';
-    protected static ?int $navigationSort = 3;
+    public static function getNavigationIcon(): string | \Illuminate\Contracts\Support\Htmlable | null
+    {
+        return 'heroicon-o-chart-bar';
+    }
 
-    protected static string $view = 'filament-panels::pages.dashboard';
+    public static function getNavigationLabel(): string
+    {
+        return 'Estatísticas';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Vendas';
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
+    }
+
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return 'Estatísticas Avançadas';
+    }
+
+    protected string $view = 'filament-panels::pages.dashboard';
 
     protected function getHeaderActions(): array
     {

@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Cache;
 
 class ApprovalChargebackWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Aprovações vs Chargebacks';
+    protected ?string $heading = 'Aprovações vs Chargebacks';
     protected static ?int $sort = 5;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
 
     protected function getData(): array
     {

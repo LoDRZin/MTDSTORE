@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Cache;
 
 class SalesNetChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Vendas Líquidas (Últimos 30 dias)';
+    protected ?string $heading = 'Vendas Líquidas (Últimos 30 dias)';
     protected static ?int $sort = 3;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
     public ?string $filter = '30'; // Default 30 days
 
     protected function getFilters(): ?array

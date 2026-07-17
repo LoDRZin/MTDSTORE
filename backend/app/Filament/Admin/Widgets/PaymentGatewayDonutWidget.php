@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Cache;
 
 class PaymentGatewayDonutWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Vendas por Gateway';
+    protected ?string $heading = 'Vendas por Gateway';
     protected static ?int $sort = 4;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
 
     protected function getData(): array
     {

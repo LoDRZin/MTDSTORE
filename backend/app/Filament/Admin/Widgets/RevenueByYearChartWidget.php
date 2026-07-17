@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Cache;
 
 class RevenueByYearChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Receita Anual (Meses)';
+    protected ?string $heading = 'Receita Anual (Meses)';
     protected static ?int $sort = 6;
-    protected static ?string $pollingInterval = '300s';
+    protected ?string $pollingInterval = '300s';
 
     protected function getData(): array
     {
