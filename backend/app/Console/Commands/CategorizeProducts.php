@@ -109,7 +109,7 @@ class CategorizeProducts extends Command
         $this->info("Concluído! {$count} produtos foram categorizados.");
         
         // Limpa o cache
-        \Illuminate\Support\Facades\Cache::tags(['categories'])->flush();
+        // Clear cache
         \Illuminate\Support\Facades\Cache::forget('categories.tree');
         $this->info("Cache de categorias invalidado.");
     }

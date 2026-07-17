@@ -16,7 +16,7 @@ class CategoryController extends Controller
      */
     public function index(): JsonResponse
     {
-        $categories = Cache::tags(['categories'])->remember(
+        $categories = Cache::remember(
             'categories.tree',
             now()->addHour(),
             fn () => Category::active()
