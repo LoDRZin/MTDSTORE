@@ -1,4 +1,6 @@
 #!/bin/sh
+set -e
+
 
 # Injetar a variável $PORT do Render na configuração do Nginx
 mkdir -p /etc/nginx/conf.d
@@ -13,6 +15,7 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 php artisan event:cache
+php artisan filament:optimize
 
 # Iniciar o Supervisor (que irá gerenciar Nginx, PHP-FPM, Horizon, etc.)
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf

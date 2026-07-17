@@ -114,8 +114,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
         $user->append('is_admin');
 
-        // Redireciona para o frontend com o token na URL (Hash ou Param)
-        $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+        // Redireciona para o frontend com o token
+        $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
         $userData = base64_encode(json_encode($user));
         
         return redirect()->to("{$frontendUrl}/auth/callback?token={$token}&user={$userData}");

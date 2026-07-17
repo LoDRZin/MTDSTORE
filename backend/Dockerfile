@@ -35,6 +35,7 @@ RUN mkdir -p /etc/nginx/templates
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY docker/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Copia script de inicialização
 COPY docker/start.sh /usr/local/bin/start.sh
