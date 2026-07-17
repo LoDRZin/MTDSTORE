@@ -9,16 +9,15 @@ class LowStockWidget extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $products = \App\Models\Product::where('status', 'active')->get();
-        $lowStockCount = 0;
-        
-        $inventoryService = app(\App\Services\InventoryService::class);
-        foreach ($products as $product) {
-            $count = $inventoryService->getAvailableCount($product->id);
-            if ($count < 5) { // Threshold for low stock
-                $lowStockCount++;
-            }
-        }
+        // Otimização: Evitar N+1 queries e timeouts do Redis ao carregar o dashboard
+        // Usamos withCount() e filtramos via collection (rápido e compatível com PGSQL)
+        $lowStockCount = \App\Models\Product::whereIn('status', ['active', 'published'])
+            ->withCount(['stockItems' => function ($query) {
+                $query->where('status', 'available');
+            }])
+            ->get()
+            ->filter(fn($product) => $product->stock_items_count < 5)
+            ->count();
 
         return [
             \Filament\Widgets\StatsOverviewWidget\Stat::make('Produtos em Baixo Estoque', $lowStockCount)
