@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\DTOs\PaymentIntentDTO;
 use App\DTOs\WebhookEventDTO;
 use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Stripe\Webhook;
 
 class StripeGateway implements PaymentGatewayInterface
@@ -19,15 +18,33 @@ class StripeGateway implements PaymentGatewayInterface
 
     public function createCharge(Order $order): PaymentIntentDTO
     {
-        $intent = PaymentIntent::create([
-            'amount' => (int) ($order->total * 100), // Stripe uses cents
-            'currency' => 'brl',
+        $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'https://mtdstore.xyz'));
+        
+        $session = \Stripe\Checkout\Session::create([
+            'payment_method_types' => ['card', 'pix'], // Permite cartão e PIX no Stripe
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'brl',
+                    'product_data' => [
+                        'name' => 'Pedido #' . explode('-', $order->uuid)[0],
+                    ],
+                    'unit_amount' => (int) ($order->total * 100),
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => rtrim($frontendUrl, '/') . '/pedido/' . $order->uuid . '/sucesso',
+            'cancel_url' => rtrim($frontendUrl, '/') . '/checkout',
+            'client_reference_id' => $order->uuid,
+            'customer_email' => $order->customer->email ?? null,
             'metadata' => ['order_uuid' => $order->uuid],
         ]);
 
+        $order->update(['external_reference' => $session->id]);
+
         return new PaymentIntentDTO(
-            externalReference: $intent->id,
-            checkoutUrl: $intent->client_secret, // Used for frontend Stripe Elements
+            externalReference: $session->id,
+            checkoutUrl: $session->url,
             qrCode: null,
             gatewayName: 'stripe'
         );
@@ -54,16 +71,24 @@ class StripeGateway implements PaymentGatewayInterface
         $intent = $payload['data']['object'] ?? [];
 
         $status = 'pending';
-        if ($type === 'payment_intent.succeeded') {
+        $orderUuid = '';
+
+        if ($type === 'checkout.session.completed') {
             $status = 'paid';
-        } elseif ($type === 'payment_intent.payment_failed') {
+            $orderUuid = $intent['metadata']['order_uuid'] ?? $intent['client_reference_id'] ?? '';
+        } elseif ($type === 'checkout.session.expired') {
             $status = 'failed';
+            $orderUuid = $intent['metadata']['order_uuid'] ?? $intent['client_reference_id'] ?? '';
+        } elseif ($type === 'payment_intent.succeeded') {
+            // Em caso do webhook alternativo ser disparado
+            $status = 'paid';
+            $orderUuid = $intent['metadata']['order_uuid'] ?? '';
         }
 
         return new WebhookEventDTO(
             gatewayName: 'stripe',
             externalEventId: $payload['id'],
-            orderUuid: $intent['metadata']['order_uuid'] ?? '',
+            orderUuid: $orderUuid,
             status: $status
         );
     }

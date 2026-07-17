@@ -17,13 +17,9 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   
-  const [gateway, setGateway] = useState("mercadopago"); // mercadopago (PIX) or stripe (Cartão)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
-  const [qrCode, setQrCode] = useState("");
-  const [pixCopyPaste, setPixCopyPaste] = useState("");
-  const [pixUrl, setPixUrl] = useState("");
   const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
@@ -44,7 +40,7 @@ export default function CheckoutPage() {
     try {
       const payload = {
         email: user?.email,
-        gateway,
+        gateway: "stripe",
         coupon_code: coupon?.code || null,
         items: items.map(i => ({ 
           product_id: i.id, 
@@ -61,18 +57,12 @@ export default function CheckoutPage() {
       const uuid = data.order.uuid;
       setOrderId(uuid);
       
-      if (gateway === "mercadopago") {
-        setQrCode(data.payment?.checkout_url || ""); // URL do ticket do PIX
-        setPixCopyPaste(data.payment?.qr_code || ""); // Código copia e cola
-        setPixUrl(data.payment?.checkout_url || "");
+      // Stripe: redirecionar para URL de checkout hospedado (que possui PIX e Cartão)
+      if (data.payment?.checkout_url) {
+        window.location.href = data.payment.checkout_url;
       } else {
-        // Stripe: redirecionar para URL de checkout
-        if (data.payment?.checkout_url) {
-          window.location.href = data.payment.checkout_url;
-        } else {
-          clearCart();
-          router.push(`/pedido/${uuid}/sucesso`);
-        }
+        clearCart();
+        router.push(`/pedido/${uuid}/sucesso`);
       }
       
     } catch (err: unknown) {
@@ -80,11 +70,6 @@ export default function CheckoutPage() {
     } finally {
       setLoading(false);
     }
-  };
-  
-  const handlePixPaid = () => {
-    clearCart();
-    router.push(`/pedido/${orderId}/sucesso`);
   };
 
   if (items.length === 0 && !orderId) {
@@ -119,56 +104,6 @@ export default function CheckoutPage() {
     );
   }
 
-  if (qrCode || pixUrl) {
-    return (
-      <SectionContainer className="container mx-auto px-4 py-16 text-center max-w-xl">
-        <h2 className="text-3xl font-display font-bold mb-3">Pagamento PIX</h2>
-        <p className="text-text-tertiary mb-10">Escaneie o QR Code ou use o código Copia e Cola no app do seu banco.</p>
-        
-        <div className="glass-panel p-10 rounded-3xl flex flex-col items-center shadow-2xl">
-          {pixUrl ? (
-            <a href={pixUrl} target="_blank" rel="noopener noreferrer" className="bg-white p-6 rounded-2xl mb-8 shadow-[0_0_40px_rgba(255,255,255,0.1)] inline-block">
-              <div className="w-48 h-48 flex items-center justify-center">
-                <QrCode size={100} className="text-black" />
-              </div>
-            </a>
-          ) : (
-            <div className="bg-white p-6 rounded-2xl mb-8 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-              <div className="w-48 h-48 flex items-center justify-center">
-                <QrCode size={100} className="text-black" />
-              </div>
-            </div>
-          )}
-          
-          {pixCopyPaste && (
-            <div className="w-full relative mb-8">
-              <input 
-                type="text" 
-                className="w-full bg-surface-950 border border-white/10 rounded-xl p-4 text-center text-sm font-mono text-text-secondary focus:outline-none" 
-                readOnly 
-                value={pixCopyPaste} 
-              />
-              <button
-                onClick={() => navigator.clipboard.writeText(pixCopyPaste)}
-                className="mt-3 text-brand-400 text-xs uppercase tracking-wider font-bold hover:text-brand-300 transition-colors"
-              >
-                Copiar código Pix
-              </button>
-            </div>
-          )}
-
-          <p className="text-sm text-text-tertiary mb-6">
-            Após pagar, seus produtos serão entregues automaticamente por e-mail.
-          </p>
-          
-          <PremiumButton variant="secondary" size="lg" onClick={handlePixPaid} className="w-full">
-            Já paguei — ver meu pedido
-          </PremiumButton>
-        </div>
-      </SectionContainer>
-    );
-  }
-
   return (
     <SectionContainer className="container mx-auto px-4 py-16">
       <div className="flex items-center gap-3 mb-10">
@@ -185,7 +120,6 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         <form onSubmit={handleSubmit} className="lg:col-span-7 flex flex-col gap-8">
           
-          {/* Email Section (Read Only now since we have user auth) */}
           <div className="glass-panel p-8 rounded-3xl">
             <h3 className="text-xl font-display font-semibold mb-6 flex items-center gap-2">
               <Mail size={20} className="text-text-tertiary" /> Recebimento
@@ -199,35 +133,24 @@ export default function CheckoutPage() {
             </div>
           </div>
           
-          {/* Payment Section */}
           <div className="glass-panel p-8 rounded-3xl">
             <h3 className="text-xl font-display font-semibold mb-6 flex items-center gap-2">
-              <CreditCard size={20} className="text-text-tertiary" /> Pagamento
+              <CreditCard size={20} className="text-text-tertiary" /> Pagamento Seguro
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              <label className={`relative p-5 border rounded-2xl cursor-pointer transition-all ${gateway === 'mercadopago' ? 'border-brand-500 bg-brand-600/5' : 'border-white/10 bg-surface-950 hover:bg-white/5 text-text-tertiary'}`}>
-                <input type="radio" name="gateway" value="mercadopago" checked={gateway === 'mercadopago'} onChange={() => setGateway("mercadopago")} className="hidden" />
-                <div className="flex items-center justify-between mb-2">
-                  <strong className={`font-semibold ${gateway === 'mercadopago' ? 'text-brand-400' : 'text-white'}`}>PIX</strong>
-                  <QrCode size={20} className={gateway === 'mercadopago' ? 'text-brand-400' : ''} />
-                </div>
-                <div className="text-sm">Aprovação imediata</div>
-                {gateway === 'mercadopago' && (
-                  <div className="absolute -top-3 -right-3 w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm shadow-brand-sm">âœ“</div>
-                )}
-              </label>
-
-              <label className={`relative p-5 border rounded-2xl cursor-pointer transition-all ${gateway === 'stripe' ? 'border-brand-500 bg-brand-600/5' : 'border-white/10 bg-surface-950 hover:bg-white/5 text-text-tertiary'}`}>
-                <input type="radio" name="gateway" value="stripe" checked={gateway === 'stripe'} onChange={() => setGateway("stripe")} className="hidden" />
-                <div className="flex items-center justify-between mb-2">
-                  <strong className={`font-semibold ${gateway === 'stripe' ? 'text-brand-400' : 'text-white'}`}>Cartão de Crédito</strong>
-                  <CreditCard size={20} className={gateway === 'stripe' ? 'text-brand-400' : ''} />
-                </div>
-                <div className="text-sm">Até 12x s/ juros</div>
-                {gateway === 'stripe' && (
-                  <div className="absolute -top-3 -right-3 w-6 h-6 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm shadow-brand-sm">âœ“</div>
-                )}
-              </label>
+            
+            <div className="bg-surface-800 p-6 rounded-2xl border border-brand-500/30 relative overflow-hidden mb-8">
+              <div className="absolute top-0 right-0 p-4 opacity-5">
+                <ShieldCheck size={120} />
+              </div>
+              <h4 className="text-white font-bold mb-2">Checkout Oficial Stripe</h4>
+              <p className="text-sm text-text-tertiary mb-4 max-w-[250px] relative z-10">
+                Você será redirecionado para o ambiente seguro do Stripe para realizar o pagamento. Suporta PIX e Cartões.
+              </p>
+              
+              <div className="flex items-center gap-2 mt-4 text-xs font-bold text-brand-400 uppercase tracking-widest relative z-10">
+                <ShieldCheck size={14} />
+                <span>Transação 100% Segura</span>
+              </div>
             </div>
             
             <PremiumButton type="submit" size="lg" isLoading={loading}>
