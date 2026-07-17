@@ -34,6 +34,18 @@ class ProductResource extends JsonResource
                     'slug' => $c->slug,
                 ])
             ),
+            'variants'        => $this->whenLoaded('variants', fn () =>
+                $this->variants->map(function ($v) use ($inventoryService) {
+                    $variantStock = $inventoryService->getAvailableCount($this->id, $v->id);
+                    return [
+                        'id'              => $v->id,
+                        'name'            => $v->name,
+                        'price'           => (float) $v->price,
+                        'available_count' => $variantStock,
+                        'is_in_stock'     => $variantStock > 0,
+                    ];
+                })
+            ),
             'updated_at'      => $this->updated_at?->toIso8601String(),
         ];
     }

@@ -6,8 +6,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
@@ -61,12 +63,50 @@ class ProductForm
                                 ])
                                 ->default('draft')
                                 ->required(),
+                            Select::make('delivery_type')
+                                ->label('Tipo de Entrega')
+                                ->options([
+                                    'unique_key' => 'Chave Única (Estoque Digital)',
+                                    'file_download' => 'Download de Arquivo',
+                                ])
+                                ->default('unique_key')
+                                ->required(),
                             FileUpload::make('image_url')
                                 ->label('Imagem do Produto')
                                 ->image()
                                 ->directory('products')
                                 ->columnSpanFull(),
+                            RichEditor::make('post_purchase_instructions')
+                                ->label('Instruções Pós-Compra')
+                                ->helperText('Exibido ao cliente logo após o pagamento ser aprovado.')
+                                ->columnSpanFull(),
                         ]),
+                    ]),
+
+                Section::make('Variações do Produto')
+                    ->description('Crie opções diferentes para este produto (ex: Level 10, Level 50).')
+                    ->schema([
+                        Repeater::make('variants')
+                            ->relationship('variants')
+                            ->label('Variações')
+                            ->addActionLabel('Adicionar Variação')
+                            ->schema([
+                                Grid::make(2)->schema([
+                                    TextInput::make('name')
+                                        ->label('Nome da Variação')
+                                        ->required()
+                                        ->placeholder('Ex: Plano Mensal, Conta Level Max'),
+                                    TextInput::make('price')
+                                        ->label('Preço da Variação')
+                                        ->numeric()
+                                        ->prefix('R$')
+                                        ->required(),
+                                ]),
+                            ])
+                            ->defaultItems(0)
+                            ->reorderable(true)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null),
                     ]),
             ]);
     }

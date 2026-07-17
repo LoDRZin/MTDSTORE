@@ -51,13 +51,27 @@ class ProcessPaymentWebhook implements ShouldQueue
 
                     // Alocação de chaves (lock pessimista)
                     foreach ($sortedItems as $orderItem) {
-                        $stockItem = \App\Models\ProductStockItem::where('product_id', $orderItem->product_id)
+                        $product = $orderItem->product;
+                        
+                        // Se for download, não precisa alocar chave de estoque individual
+                        if ($product->delivery_type === 'file_download') {
+                            continue;
+                        }
+
+                        $query = \App\Models\ProductStockItem::where('product_id', $orderItem->product_id)
                             ->where('status', 'available')
-                            ->lockForUpdate()
-                            ->first();
+                            ->lockForUpdate();
+                            
+                        if ($orderItem->variant_id) {
+                            $query->where('variant_id', $orderItem->variant_id);
+                        } else {
+                            $query->whereNull('variant_id');
+                        }
+                        
+                        $stockItem = $query->first();
 
                         if (!$stockItem) {
-                            throw new Exception("Estoque insuficiente para o produto #{$orderItem->product_id}");
+                            throw new Exception("Estoque insuficiente para o produto #{$orderItem->product_id} " . ($orderItem->variant_id ? "variação #{$orderItem->variant_id}" : ""));
                         }
 
                         $stockItem->update([
@@ -68,9 +82,9 @@ class ProcessPaymentWebhook implements ShouldQueue
                         $orderItem->update(['stock_item_id' => $stockItem->id]);
 
                         $inventoryService = app(\App\Services\InventoryService::class);
-                        $inventoryService->updateRedisCount($orderItem->product_id);
+                        $inventoryService->updateRedisCount($orderItem->product_id, $orderItem->variant_id);
                         
-                        if ($inventoryService->getAvailableCount($orderItem->product_id) === 0) {
+                        if ($inventoryService->getAvailableCount($orderItem->product_id, $orderItem->variant_id) === 0) {
                             dispatch(new RevalidateStorefrontCache());
                         }
                     }

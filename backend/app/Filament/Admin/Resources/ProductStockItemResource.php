@@ -69,6 +69,11 @@ class ProductStockItemResource extends Resource
                     ->label('Produto')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('variant.name')
+                    ->label('Variação')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -146,7 +151,7 @@ class ProductStockItemResource extends Resource
                     ->action(function (ProductStockItem $record) {
                         $record->update(['status' => 'revoked']);
                         // Atualiza cache Redis
-                        app(\App\Services\InventoryService::class)->updateRedisCount($record->product_id);
+                        app(\App\Services\InventoryService::class)->updateRedisCount($record->product_id, $record->variant_id);
                         
                         activity()
                             ->performedOn($record)
@@ -157,7 +162,7 @@ class ProductStockItemResource extends Resource
                 DeleteAction::make()
                     ->visible(fn (ProductStockItem $record) => $record->status === 'available')
                     ->after(function (ProductStockItem $record) {
-                        app(\App\Services\InventoryService::class)->updateRedisCount($record->product_id);
+                        app(\App\Services\InventoryService::class)->updateRedisCount($record->product_id, $record->variant_id);
                     }),
             ])
             ->bulkActions([
@@ -172,9 +177,9 @@ class ProductStockItemResource extends Resource
                                     $record->delete();
                                 }
                             }
-                            // Atualizar redis apenas dos produtos afetados
-                            foreach ($productsToUpdate->unique() as $pid) {
-                                app(\App\Services\InventoryService::class)->updateRedisCount($pid);
+                            // Atualizar redis apenas dos produtos/variantes afetados
+                            foreach ($records as $record) {
+                                app(\App\Services\InventoryService::class)->updateRedisCount($record->product_id, $record->variant_id);
                             }
                         }),
                         
@@ -195,7 +200,7 @@ class ProductStockItemResource extends Resource
                 ]),
             ])
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['product', 'addedBy']));
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['product', 'variant', 'addedBy']));
     }
 
     public static function getPages(): array

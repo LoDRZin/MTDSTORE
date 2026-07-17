@@ -54,17 +54,26 @@ class CheckoutService
             // 3. Processar itens (Apenas cria os OrderItems, sem alocar chaves ainda)
             foreach ($cartItems as $item) {
                 $productId = $item['product_id'];
-                $quantity = $item['quantity'];
+                $variantId = $item['variant_id'] ?? null;
+                $quantity = $item['quantity'] ?? 1;
 
-                $product = \App\Models\Product::find($productId);
+                $product = \App\Models\Product::with('variants')->find($productId);
 
                 if (!$product) {
                     throw new Exception("Produto #{$productId} não encontrado.");
                 }
 
-                $available = $this->inventoryService->getAvailableCount($productId);
+                $available = $this->inventoryService->getAvailableCount($productId, $variantId);
                 if ($available < $quantity) {
                     throw new Exception("Estoque insuficiente para o produto {$product->name}. Disponível: {$available}, Solicitado: {$quantity}");
+                }
+
+                $price = $product->price;
+                if ($variantId) {
+                    $variant = $product->variants->firstWhere('id', $variantId);
+                    if ($variant) {
+                        $price = $variant->price;
+                    }
                 }
 
                 // Cria 1 OrderItem para cada quantidade solicitada (já que a relação chave -> item é 1:1)
@@ -72,7 +81,8 @@ class CheckoutService
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $productId,
-                        'unit_price' => $product->price,
+                        'variant_id' => $variantId,
+                        'unit_price' => $price,
                         'stock_item_id' => null, // Será preenchido no webhook
                     ]);
                 }

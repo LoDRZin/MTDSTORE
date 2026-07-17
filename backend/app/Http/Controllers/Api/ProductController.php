@@ -33,7 +33,7 @@ class ProductController extends Controller
 
         $perPage = min((int) $request->input('per_page', 12), 48);
 
-        $query = Product::active()->with('categories:id,name,slug');
+        $query = Product::active()->with(['categories:id,name,slug', 'variants']);
 
         // Full-text search on name
         if ($search = $request->input('search')) {
@@ -67,7 +67,7 @@ class ProductController extends Controller
     public function show(string $slug)
     {
         $product = Product::active()
-            ->with('categories:id,name,slug')
+            ->with(['categories:id,name,slug', 'variants'])
             ->where('slug', $slug)
             ->firstOrFail();
 

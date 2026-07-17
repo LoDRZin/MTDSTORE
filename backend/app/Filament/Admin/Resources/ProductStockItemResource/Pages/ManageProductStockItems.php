@@ -28,7 +28,22 @@ class ManageProductStockItems extends ManageRecords
                         ->label('Produto')
                         ->options(Product::where('status', '!=', 'archived')->pluck('name', 'id'))
                         ->searchable()
+                        ->live()
                         ->required(),
+                    Select::make('variant_id')
+                        ->label('Variação (Obrigatório se o produto tiver variações)')
+                        ->options(fn (\Filament\Forms\Get $get) => 
+                            $get('product_id') 
+                                ? \App\Models\ProductVariant::where('product_id', $get('product_id'))->pluck('name', 'id') 
+                                : []
+                        )
+                        ->visible(fn (\Filament\Forms\Get $get) => 
+                            $get('product_id') && \App\Models\ProductVariant::where('product_id', $get('product_id'))->exists()
+                        )
+                        ->required(fn (\Filament\Forms\Get $get) => 
+                            $get('product_id') && \App\Models\ProductVariant::where('product_id', $get('product_id'))->exists()
+                        )
+                        ->searchable(),
                     Textarea::make('bulk_keys')
                         ->label('Chaves (uma por linha)')
                         ->rows(10)
@@ -42,7 +57,8 @@ class ManageProductStockItems extends ManageRecords
                     $count = $inventoryService->bulkImportKeys(
                         $product,
                         $data['bulk_keys'],
-                        auth()->id()
+                        auth()->id(),
+                        $data['variant_id'] ?? null
                     );
 
                     if ($count > 0) {

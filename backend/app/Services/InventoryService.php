@@ -16,9 +16,10 @@ class InventoryService
      * @param Product $product
      * @param string $rawText
      * @param int|null $addedBy
+     * @param int|null $variantId
      * @return int Number of keys added
      */
-    public function bulkImportKeys(Product $product, string $rawText, ?int $addedBy = null): int
+    public function bulkImportKeys(Product $product, string $rawText, ?int $addedBy = null, ?int $variantId = null): int
     {
         $lines = explode("\n", str_replace("\r", "", $rawText));
         $keys = collect($lines)
@@ -34,8 +35,15 @@ class InventoryService
 
         // Buscar todas as chaves existentes do produto para evitar duplicidade real
         // Como o campo é encriptado, precisamos descriptografar em memória (aceitável para volumes de estoque normais)
-        $existingKeys = ProductStockItem::where('product_id', $product->id)
-            ->get()
+        $query = ProductStockItem::where('product_id', $product->id);
+        
+        if ($variantId) {
+            $query->where('variant_id', $variantId);
+        } else {
+            $query->whereNull('variant_id');
+        }
+
+        $existingKeys = $query->get()
             ->map(function ($item) {
                 try {
                     return Crypt::decryptString($item->value);
@@ -60,6 +68,7 @@ class InventoryService
         foreach ($keys as $key) {
             $records[] = [
                 'product_id' => $product->id,
+                'variant_id' => $variantId,
                 // Criptografa manualmente, pois o bulk insert ignora os casts do Eloquent
                 'value' => Crypt::encryptString($key),
                 'status' => 'available',
@@ -74,7 +83,7 @@ class InventoryService
         ProductStockItem::insert($records);
 
         // Atualiza o cache
-        $this->updateRedisCount($product->id);
+        $this->updateRedisCount($product->id, $variantId);
 
         activity()
             ->performedOn($product)
@@ -86,24 +95,34 @@ class InventoryService
     /**
      * Get available count from Redis (with DB fallback).
      */
-    public function getAvailableCount(int $productId): int
+    public function getAvailableCount(int $productId, ?int $variantId = null): int
     {
-        $redisKey = "product_stock_count:{$productId}";
+        // Se o produto for de download, o estoque é infinito
+        $product = Product::find($productId);
+        if ($product && $product->delivery_type === 'file_download') {
+            return PHP_INT_MAX;
+        }
+
+        $redisKey = "product_stock_count:{$productId}" . ($variantId ? "_v{$variantId}" : "");
 
         try {
             $count = Redis::get($redisKey);
 
             if ($count === null) {
-                $count = $this->updateRedisCount($productId);
+                $count = $this->updateRedisCount($productId, $variantId);
             }
 
             return (int) $count;
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("Falha ao acessar Redis em getAvailableCount: " . $e->getMessage());
             // Redis não disponível — fallback direto ao banco
-            return ProductStockItem::where('product_id', $productId)
-                ->where('status', 'available')
-                ->count();
+            $q = ProductStockItem::where('product_id', $productId)->where('status', 'available');
+            if ($variantId) {
+                $q->where('variant_id', $variantId);
+            } else {
+                $q->whereNull('variant_id');
+            }
+            return $q->count();
         }
     }
 
@@ -131,14 +150,19 @@ class InventoryService
     /**
      * Re-calculate and cache the exact stock count.
      */
-    public function updateRedisCount(int $productId): int
+    public function updateRedisCount(int $productId, ?int $variantId = null): int
     {
-        $count = ProductStockItem::where('product_id', $productId)
-            ->where('status', 'available')
-            ->count();
+        $q = ProductStockItem::where('product_id', $productId)->where('status', 'available');
+        if ($variantId) {
+            $q->where('variant_id', $variantId);
+        } else {
+            $q->whereNull('variant_id');
+        }
+        $count = $q->count();
 
         try {
-            Redis::set("product_stock_count:{$productId}", $count);
+            $redisKey = "product_stock_count:{$productId}" . ($variantId ? "_v{$variantId}" : "");
+            Redis::set($redisKey, $count);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("Falha ao salvar no Redis em updateRedisCount: " . $e->getMessage());
             // Redis não disponível — continua sem cache

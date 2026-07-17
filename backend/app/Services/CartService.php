@@ -27,24 +27,38 @@ class CartService
         // Verifica cada item
         foreach ($cartItems as $item) {
             $productId = $item['product_id'];
-            $quantity = $item['quantity'];
+            $variantId = $item['variant_id'] ?? null;
+            $quantity = $item['quantity'] ?? 1;
 
-            $product = Product::find($productId);
+            $product = Product::with('variants')->find($productId);
 
             if (!$product || $product->status !== 'active') {
                 $errors[] = "Produto #{$productId} não encontrado ou inativo.";
                 continue;
             }
 
+            $price = $product->price;
+            $itemName = $product->name;
+
+            if ($variantId) {
+                $variant = $product->variants->firstWhere('id', $variantId);
+                if (!$variant) {
+                    $errors[] = "Variação #{$variantId} do produto {$product->name} não encontrada.";
+                    continue;
+                }
+                $price = $variant->price;
+                $itemName .= ' (' . $variant->name . ')';
+            }
+
             // Checa estoque
-            $availableCount = $this->inventoryService->getAvailableCount($productId);
+            $availableCount = $this->inventoryService->getAvailableCount($productId, $variantId);
             if ($availableCount < $quantity) {
-                $errors[] = "Estoque insuficiente para o produto {$product->name}. (Disponível: {$availableCount})";
+                $errors[] = "Estoque insuficiente para {$itemName}. (Disponível: {$availableCount})";
                 // Mesmo sem estoque, para calcular o subtotal a gente soma? Geralmente não.
                 continue;
             }
 
-            $subtotal += ($product->price * $quantity);
+            $subtotal += ($price * $quantity);
         }
 
         $discount = 0.0;
