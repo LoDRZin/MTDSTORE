@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::post('/register', [\App\Http\Controllers\Api\AuthController::class, 'register']);
-Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
+    Route::post('/login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
 
 // Autenticação com Google
 Route::get('/auth/google/url', [\App\Http\Controllers\Api\AuthController::class, 'googleRedirect']);

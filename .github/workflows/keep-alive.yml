@@ -1,0 +1,23 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # A cada 14 minutos (o Render dorme após 15 min sem requisições)
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Permite rodar manualmente pelo GitHub
+
+jobs:
+  ping:
+    name: Ping Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up Render backend
+        run: |
+          echo "Pingando backend: $(date)"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://mtdstore.onrender.com/api/v1/products)
+          echo "Status HTTP: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "✅ Backend online!"
+          else
+            echo "⚠️ Backend retornou status $STATUS"
+          fi
