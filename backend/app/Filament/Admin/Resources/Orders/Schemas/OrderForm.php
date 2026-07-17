@@ -48,57 +48,6 @@ class OrderForm
                                 ->columnSpanFull(),
                         ]),
                     ]),
-
-                Section::make('Itens e Chaves Entregues')
-                    ->description('Lista de produtos comprados e as respectivas chaves de ativação enviadas ao cliente.')
-                    ->components([
-                        Repeater::make('orderItems')
-                            ->relationship('orderItems')
-                            ->label('')
-                            ->components([
-                                Placeholder::make('product.name')
-                                    ->label('Produto')
-                                    ->content(fn ($record) => $record?->product?->name ?? 'N/A'),
-                                
-                                Placeholder::make('price')
-                                    ->label('Preço Unitário')
-                                    ->content(fn ($record) => $record ? 'R$ ' . number_format($record->price, 2, ',', '.') : '-'),
-
-                                Placeholder::make('stock_item_value')
-                                    ->label('Chave Entregue')
-                                    ->content('••••••••••••••••')
-                                    ->hintAction(
-                                        \Filament\Forms\Components\Actions\Action::make('reveal')
-                                            ->label('Revelar')
-                                            ->icon('heroicon-m-eye')
-                                            ->color('warning')
-                                            ->requiresConfirmation()
-                                            ->modalHeading('Revelar Chave Sensível')
-                                            ->modalDescription('Você está prestes a visualizar a chave original em texto puro. Esta ação será registrada em log.')
-                                            ->visible(fn () => auth()->user()->hasRole('super_admin'))
-                                            ->modalContent(function ($record) {
-                                                abort_unless(auth()->user()->hasRole('super_admin'), 403);
-                                                return view('filament.admin.components.reveal-key', ['key' => $record?->stock_item?->value ?? '']);
-                                            })
-                                            ->action(function ($record) {
-                                                abort_unless(auth()->user()->hasRole('super_admin'), 403);
-                                                if ($record?->stock_item) {
-                                                    activity()
-                                                        ->performedOn($record->stock_item)
-                                                        ->causedBy(auth()->user())
-                                                        ->withProperties(['order_id' => $record->order_id])
-                                                        ->log('Visualizou a chave de estoque no pedido em texto puro');
-                                                }
-                                            })
-                                    )
-                                    ->visible(fn ($record) => $record && $record->stock_item_id),
-                            ])
-                            ->columns(3)
-                            ->disableItemCreation()
-                            ->disableItemDeletion()
-                            ->disableItemMovement()
-                    ])
-                    ->visible(fn ($record) => $record !== null),
             ]);
     }
 }
