@@ -16,37 +16,50 @@ class CategoriesTable
     {
         return $table
             ->columns([
+                ImageColumn::make('image_url')
+                    ->label('Imagem')
+                    ->circular(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Nome')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('slug')
-                    ->searchable(),
-                ImageColumn::make('image_url'),
+                    ->label('Slug')
+                    ->searchable()
+                    ->color('gray'),
                 TextColumn::make('parent.name')
+                    ->label('Categoria Pai')
                     ->searchable(),
                 TextColumn::make('order')
+                    ->label('Ordem')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->badge(),
                 IconColumn::make('is_active')
+                    ->label('Ativa')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criada em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizada em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('order');
     }
 }

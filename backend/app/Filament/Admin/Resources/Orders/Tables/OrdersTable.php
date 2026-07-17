@@ -4,7 +4,7 @@ namespace App\Filament\Admin\Resources\Orders\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -15,35 +15,60 @@ class OrdersTable
         return $table
             ->columns([
                 TextColumn::make('uuid')
-                    ->label('UUID'),
+                    ->label('ID do Pedido')
+                    ->searchable()
+                    ->copyable()
+                    ->color('primary')
+                    ->limit(8),
                 TextColumn::make('customer.name')
-                    ->searchable(),
+                    ->label('Cliente')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('status')
+                    ->label('Status')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'Pendente',
+                        'paid' => 'Pago',
+                        'failed' => 'Falhou',
+                        'cancelled' => 'Cancelado',
+                        default => $state,
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'paid' => 'success',
+                        'failed' => 'danger',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 TextColumn::make('total')
-                    ->numeric()
+                    ->label('Total')
+                    ->money('BRL')
                     ->sortable(),
                 TextColumn::make('external_reference')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->label('Ref. Externa')
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at')
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
-                EditAction::make(),
+            ->actions([
+                ViewAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([
+                // Pedidos não devem ser deletados em lote para não quebrar conciliação
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 }

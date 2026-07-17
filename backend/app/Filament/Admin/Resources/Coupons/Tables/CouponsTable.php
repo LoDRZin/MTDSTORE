@@ -16,45 +16,64 @@ class CouponsTable
         return $table
             ->columns([
                 TextColumn::make('code')
-                    ->searchable(),
+                    ->label('Código')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Código copiado!')
+                    ->copyMessageDuration(1500)
+                    ->weight('bold')
+                    ->color('primary'),
                 TextColumn::make('type')
+                    ->label('Tipo')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'fixed' => 'Fixo (R$)',
+                        'percentage' => 'Porcentagem (%)',
+                        default => $state,
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'fixed' => 'info',
+                        'percentage' => 'success',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 TextColumn::make('value')
-                    ->numeric()
+                    ->label('Valor')
+                    ->formatStateUsing(fn ($record) => $record->type === 'percentage' ? "{$record->value}%" : "R$ {$record->value}")
                     ->sortable(),
                 TextColumn::make('max_uses')
-                    ->numeric()
+                    ->label('Máx. Usos')
+                    ->formatStateUsing(fn ($state) => $state === null ? 'Ilimitado' : $state)
                     ->sortable(),
                 TextColumn::make('uses_count')
+                    ->label('Usos Realizados')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('expires_at')
-                    ->dateTime()
+                    ->label('Validade')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 IconColumn::make('active')
+                    ->label('Ativo')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('min_order_value')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('max_discount_value')
-                    ->numeric()
-                    ->sortable(),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

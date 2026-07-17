@@ -16,33 +16,46 @@ class AffiliatesTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->searchable(),
+                    ->label('Usuário Afiliado')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('code')
-                    ->searchable(),
+                    ->label('Código')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Código copiado!')
+                    ->copyMessageDuration(1500)
+                    ->color('primary'),
                 TextColumn::make('balance')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Saldo Atual')
+                    ->money('BRL')
+                    ->sortable()
+                    ->color('success'),
                 TextColumn::make('commission_rate')
-                    ->numeric()
+                    ->label('Comissão')
+                    ->formatStateUsing(fn ($state) => "{$state}%")
                     ->sortable(),
                 IconColumn::make('active')
+                    ->label('Ativo')
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Atualizado em')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 EditAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
