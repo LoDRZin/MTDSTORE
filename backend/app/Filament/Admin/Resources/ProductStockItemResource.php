@@ -123,14 +123,19 @@ class ProductStockItemResource extends Resource
                     ->modalDescription('Você está prestes a visualizar a chave original em texto puro. Esta ação será registrada em log e só deve ser feita se estritamente necessário. Tem certeza?')
                     ->modalSubmitActionLabel('Sim, revelar chave')
                     ->visible(fn () => auth()->user()->hasRole('super_admin'))
-                    ->action(function (ProductStockItem $record) {
+                    ->action(function (\App\Models\ProductStockItem $record) {
+                        abort_unless(auth()->user()->hasRole('super_admin'), 403);
+                        
                         // Log explícito
                         activity()
                             ->performedOn($record)
                             ->causedBy(auth()->user())
                             ->log('Visualizou a chave de estoque em texto puro');
                     })
-                    ->modalContent(fn (ProductStockItem $record) => view('filament.admin.components.reveal-key', ['key' => $record->value])),
+                    ->modalContent(function (\App\Models\ProductStockItem $record) {
+                        abort_unless(auth()->user()->hasRole('super_admin'), 403);
+                        return view('filament.admin.components.reveal-key', ['key' => $record->value]);
+                    }),
 
                 Action::make('revoke')
                     ->label('Revogar')

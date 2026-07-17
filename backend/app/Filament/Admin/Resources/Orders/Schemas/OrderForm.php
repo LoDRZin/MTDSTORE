@@ -76,8 +76,12 @@ class OrderForm
                                             ->modalHeading('Revelar Chave Sensível')
                                             ->modalDescription('Você está prestes a visualizar a chave original em texto puro. Esta ação será registrada em log.')
                                             ->visible(fn () => auth()->user()->hasRole('super_admin'))
-                                            ->modalContent(fn ($record) => view('filament.admin.components.reveal-key', ['key' => $record?->stock_item?->value ?? '']))
+                                            ->modalContent(function ($record) {
+                                                abort_unless(auth()->user()->hasRole('super_admin'), 403);
+                                                return view('filament.admin.components.reveal-key', ['key' => $record?->stock_item?->value ?? '']);
+                                            })
                                             ->action(function ($record) {
+                                                abort_unless(auth()->user()->hasRole('super_admin'), 403);
                                                 if ($record?->stock_item) {
                                                     activity()
                                                         ->performedOn($record->stock_item)
