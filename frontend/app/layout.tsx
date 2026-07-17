@@ -30,6 +30,7 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://mtdstore.xyz"),
   title: "MTD STORE | Chaves e Produtos Digitais Premium",
   description:
     "A melhor loja para compra de chaves de jogos, licenças de software e produtos digitais com entrega automática e imediata via PIX e Cartão.",
