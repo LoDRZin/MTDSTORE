@@ -18,11 +18,11 @@ class CouponService
      * @return CouponDTO
      * @throws Exception
      */
-    public function validate(string $code, float $orderTotal, array $cartProductIds = []): CouponDTO
+    public function validate(string $code, float $orderTotal, array $cartProductIds = [], ?int $userId = null, ?string $paymentMethod = null): CouponDTO
     {
-        // Eager-load products to avoid N+1 inside isApplicableToProducts
+        // Eager-load relations to avoid N+1 inside restriction checks
         $coupon = Coupon::where('code', strtoupper(trim($code)))
-            ->with('products:id')
+            ->with(['products:id', 'categories:id', 'allowedUsers:id'])
             ->first();
 
         if (!$coupon) {
@@ -50,6 +50,28 @@ class CouponService
                 'Este cupom não é válido para os produtos selecionados.',
                 422
             );
+        }
+
+        // Check category restrictions
+        if (!empty($cartProductIds) && !$coupon->isApplicableToCategories($cartProductIds)) {
+            throw new Exception(
+                'Este cupom não é válido para a categoria dos produtos selecionados.',
+                422
+            );
+        }
+
+        // Check user restrictions
+        if ($coupon->allowedUsers->isNotEmpty()) {
+            if (!$userId || !$coupon->allowedUsers->contains('id', $userId)) {
+                throw new Exception('Este cupom é restrito a clientes específicos.', 422);
+            }
+        }
+
+        // Check allowed payment methods
+        if ($paymentMethod && !empty($coupon->allowed_payment_methods)) {
+            if (!in_array($paymentMethod, $coupon->allowed_payment_methods, true)) {
+                throw new Exception('Este cupom não é válido para o método de pagamento selecionado.', 422);
+            }
         }
 
         // Calculate discount

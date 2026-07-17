@@ -97,11 +97,51 @@ class Coupon extends Model
         return true;
     }
 
-    /**
-     * Whether this coupon has product-level restrictions.
-     */
     public function hasProductRestrictions(): bool
     {
         return $this->products()->exists();
+    }
+
+    /**
+     * Checks if the coupon can be applied to the categories of the given product IDs.
+     */
+    public function isApplicableToCategories(array $cartProductIds): bool
+    {
+        $restrictedCategoryIds = $this->categories->pluck('id')->toArray();
+
+        if (empty($restrictedCategoryIds)) {
+            return true;
+        }
+
+        // We need to ensure that every product in the cart has AT LEAST ONE category 
+        // that is within the restricted category IDs.
+        $productCategories = \Illuminate\Support\Facades\DB::table('category_product')
+            ->whereIn('product_id', $cartProductIds)
+            ->get()
+            ->groupBy('product_id');
+
+        foreach ($cartProductIds as $productId) {
+            $categoriesForProduct = $productCategories->get($productId);
+
+            // Se o produto não tiver nenhuma categoria, e o cupom exige categoria, falha.
+            if (!$categoriesForProduct) {
+                return false;
+            }
+
+            // Verifica se alguma das categorias deste produto está na lista de permitidas
+            $hasAllowedCategory = false;
+            foreach ($categoriesForProduct as $cat) {
+                if (in_array($cat->category_id, $restrictedCategoryIds, strict: true)) {
+                    $hasAllowedCategory = true;
+                    break;
+                }
+            }
+
+            if (!$hasAllowedCategory) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

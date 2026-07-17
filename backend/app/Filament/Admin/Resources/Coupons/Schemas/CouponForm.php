@@ -86,7 +86,31 @@ class CouponForm
                                 ->multiple()
                                 ->preload()
                                 ->label('Restringir a Produtos Específicos')
-                                ->helperText('Se vazio, será válido em todos.')
+                                ->helperText('Se vazio, será válido em todos os produtos.'),
+                                
+                            Select::make('categories')
+                                ->relationship('categories', 'name')
+                                ->multiple()
+                                ->preload()
+                                ->label('Restringir a Categorias')
+                                ->helperText('Se vazio, não há restrição de categoria.'),
+                                
+                            Select::make('allowedUsers')
+                                ->relationship('allowedUsers', 'name')
+                                ->multiple()
+                                ->searchable()
+                                ->label('Restringir a Clientes Específicos')
+                                ->helperText('Apenas estes clientes poderão usar. Se vazio, é público.'),
+                                
+                            Select::make('allowed_payment_methods')
+                                ->multiple()
+                                ->options([
+                                    'pix' => 'Pix',
+                                    'credit_card' => 'Cartão de Crédito',
+                                    'boleto' => 'Boleto',
+                                ])
+                                ->label('Métodos de Pagamento Permitidos')
+                                ->helperText('Se vazio, válido para qualquer método.')
                                 ->columnSpanFull(),
                         ]),
                     ]),

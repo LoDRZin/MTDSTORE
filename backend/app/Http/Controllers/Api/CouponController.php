@@ -24,13 +24,16 @@ class CouponController extends Controller
             'order_total'    => 'required|numeric|min:0',
             'product_ids'    => 'sometimes|array',
             'product_ids.*'  => 'integer|min:1',
+            'payment_method' => 'nullable|string'
         ]);
 
         try {
             $dto = $this->couponService->validate(
                 $request->input('code'),
                 (float) $request->input('order_total'),
-                $request->input('product_ids', [])
+                $request->input('product_ids', []),
+                $request->user('sanctum')?->id,
+                $request->input('payment_method')
             );
 
             return response()->json([
