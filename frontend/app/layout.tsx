@@ -3,11 +3,13 @@ import { Inter, Space_Grotesk, Sora } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import AmbientGlow from "@/components/ui/AmbientGlow";
-import GridBackground from "@/components/ui/GridBackground";
-import CustomCursor from "@/components/ui/CustomCursor";
-import InitialLoader from "@/components/ui/InitialLoader";
-import AuthModal from "@/components/auth/AuthModal";
+import dynamic from "next/dynamic";
+
+const AmbientGlow = dynamic(() => import("@/components/ui/AmbientGlow"), { ssr: false });
+const GridBackground = dynamic(() => import("@/components/ui/GridBackground"), { ssr: false });
+const CustomCursor = dynamic(() => import("@/components/ui/CustomCursor"), { ssr: false });
+const InitialLoader = dynamic(() => import("@/components/ui/InitialLoader"), { ssr: false });
+const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), { ssr: false });
 
 const inter = Inter({
   subsets: ["latin"],
