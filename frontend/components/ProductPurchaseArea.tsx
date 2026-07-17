@@ -38,9 +38,6 @@ export default function ProductPurchaseArea({ product }: ProductPurchaseAreaProp
   const displayStock = selectedVariant ? selectedVariant.available_count : product.available_count;
   const isOutOfStock = displayStock === 0;
 
-  // Fake sales for UI (can be replaced by real DB data later)
-  const fakeSales = (product.id * 7) % 50 + 10;
-
   const filteredVariants = hasVariants 
     ? product.variants!.filter(v => v.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : [];
@@ -53,9 +50,7 @@ export default function ProductPurchaseArea({ product }: ProductPurchaseAreaProp
       {/* Header Info */}
       <div className="mb-4">
         <div className="flex items-center gap-2 text-sm text-text-tertiary mb-1">
-          <span>+{fakeSales} Vendido(s)</span>
-          <span>•</span>
-          <span>+{product.available_count} Restante(s)</span>
+          <span>{product.available_count} Restante(s)</span>
         </div>
         
         <h1 className="text-2xl font-display font-bold text-white mb-3">

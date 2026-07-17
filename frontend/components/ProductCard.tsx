@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore } from "@/store/cart";
-import { ShoppingCart, Package, TrendingUp, Flame } from "lucide-react";
+import { ShoppingCart, Package, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Product {
@@ -25,7 +25,6 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const isOutOfStock = product.available_count === 0;
   const isLowStock = product.available_count > 0 && product.available_count <= 5;
-  const isBestseller = index < 2; // Demo: first 2 cards get bestseller
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
@@ -85,11 +84,6 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-surface-900 via-transparent to-transparent pointer-events-none" />
 
         {/* Badges */}
-        {isBestseller && !isOutOfStock && (
-          <span className="absolute top-3 left-3 bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 backdrop-blur-md">
-            <Flame size={12} /> Mais Vendido
-          </span>
-        )}
 
         <span className={`absolute top-3 right-3 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md border ${
           isOutOfStock 
