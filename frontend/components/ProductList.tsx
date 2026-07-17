@@ -10,6 +10,7 @@ interface Category {
   id: number;
   name: string;
   slug: string;
+  image_url?: string | null;
 }
 
 interface Product {
@@ -127,8 +128,12 @@ export default function ProductList({ initialProducts, categories, meta }: Produ
                 onClick={() => selectCategory(cat.slug)}
                 className="flex flex-col items-center justify-center p-8 bg-surface-900/50 border border-white/10 rounded-2xl hover:border-brand-500/50 hover:bg-surface-800 transition-all group"
               >
-                <div className="w-16 h-16 rounded-full bg-brand-500/10 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors">
-                  <LayoutGrid size={28} className="text-brand-500" />
+                <div className="w-16 h-16 rounded-full bg-brand-500/10 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors overflow-hidden">
+                  {cat.image_url ? (
+                    <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <LayoutGrid size={28} className="text-brand-500" />
+                  )}
                 </div>
                 <h3 className="text-xl font-display font-semibold text-white group-hover:text-brand-400 transition-colors">
                   {cat.name}

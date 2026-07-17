@@ -20,6 +20,11 @@ const nextConfig = {
         hostname: 'mtdstore.test',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'kbkuipmqoqlackykxqsc.supabase.co',
+        pathname: '/**',
+      },
     ],
   },
 };
