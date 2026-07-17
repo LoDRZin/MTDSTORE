@@ -7,6 +7,9 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  variant_id?: number;
+  variant_name?: string;
+  cartItemId: string;
 }
 
 export interface CouponData {
@@ -19,9 +22,9 @@ interface CartState {
   items: CartItem[];
   isOpen: boolean;
   coupon: CouponData | null;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  addItem: (item: Omit<CartItem, "quantity" | "cartItemId">) => void;
+  removeItem: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   setItems: (items: CartItem[]) => void;
   setIsOpen: (isOpen: boolean) => void;
@@ -39,27 +42,35 @@ export const useCartStore = create<CartState>()(
       
       addItem: (newItem) =>
         set((state) => {
-          const existingItem = state.items.find((i) => i.id === newItem.id);
+          const cartItemId = newItem.variant_id 
+            ? `${newItem.id}-${newItem.variant_id}` 
+            : `${newItem.id}`;
+            
+          const existingItem = state.items.find((i) => i.cartItemId === cartItemId);
+          
           if (existingItem) {
             return {
               items: state.items.map((i) =>
-                i.id === newItem.id ? { ...i, quantity: i.quantity + 1 } : i
+                i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + 1 } : i
               ),
               isOpen: true,
             };
           }
-          return { items: [...state.items, { ...newItem, quantity: 1 }], isOpen: true };
+          return { 
+            items: [...state.items, { ...newItem, cartItemId, quantity: 1 }], 
+            isOpen: true 
+          };
         }),
         
-      removeItem: (id) =>
+      removeItem: (cartItemId) =>
         set((state) => ({
-          items: state.items.filter((i) => i.id !== id),
+          items: state.items.filter((i) => i.cartItemId !== cartItemId),
         })),
         
-      updateQuantity: (id, quantity) =>
+      updateQuantity: (cartItemId, quantity) =>
         set((state) => ({
           items: state.items.map((i) =>
-            i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i
+            i.cartItemId === cartItemId ? { ...i, quantity: Math.max(1, quantity) } : i
           ),
         })),
         

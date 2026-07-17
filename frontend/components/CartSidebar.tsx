@@ -94,11 +94,18 @@ export default function CartSidebar() {
               ) : (
                 <div className="flex flex-col gap-4">
                   {items.map((item) => (
-                    <div key={item.id} className="flex flex-col gap-3 p-4 rounded-xl bg-surface-900 border border-white/5 group">
+                    <div key={item.cartItemId} className="flex flex-col gap-3 p-4 rounded-xl bg-surface-900 border border-white/5 group">
                       <div className="flex justify-between items-start gap-4">
-                        <p className="font-semibold text-white text-sm line-clamp-2 leading-snug flex-1">
-                          {item.name}
-                        </p>
+                        <div className="flex-1">
+                          <p className="font-semibold text-white text-sm line-clamp-2 leading-snug">
+                            {item.name}
+                          </p>
+                          {item.variant_name && (
+                            <p className="text-xs text-brand-400 mt-1 font-medium">
+                              {item.variant_name}
+                            </p>
+                          )}
+                        </div>
                         <p className="font-bold text-white shrink-0">
                           {formatPrice(item.price)}
                         </p>
@@ -107,7 +114,7 @@ export default function CartSidebar() {
                         {/* Quantity Controls */}
                         <div className="flex items-center gap-4 bg-surface-950 border border-white/10 rounded-lg p-1">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                             className="w-7 h-7 flex items-center justify-center text-text-tertiary hover:text-white hover:bg-white/5 rounded-md transition-colors"
                             aria-label="Diminuir quantidade"
                           >
@@ -115,7 +122,7 @@ export default function CartSidebar() {
                           </button>
                           <span className="text-sm font-semibold w-4 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
                             className="w-7 h-7 flex items-center justify-center text-text-tertiary hover:text-white hover:bg-white/5 rounded-md transition-colors"
                             aria-label="Aumentar quantidade"
                           >
@@ -125,7 +132,7 @@ export default function CartSidebar() {
                         {/* Remove */}
                         <button
                           className="w-9 h-9 flex items-center justify-center text-text-tertiary hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.cartItemId)}
                           aria-label={`Remover ${item.name}`}
                         >
                           <Trash2 size={16} />

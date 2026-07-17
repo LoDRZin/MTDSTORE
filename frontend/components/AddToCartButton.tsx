@@ -10,6 +10,8 @@ interface AddToCartButtonProps {
     slug: string;
     name: string;
     price: number;
+    variant_id?: number;
+    variant_name?: string;
   };
   isOutOfStock: boolean;
 }
@@ -23,6 +25,8 @@ export default function AddToCartButton({ product, isOutOfStock }: AddToCartButt
       slug: product.slug,
       name: product.name,
       price: Number(product.price),
+      variant_id: product.variant_id,
+      variant_name: product.variant_name,
     });
   };
 

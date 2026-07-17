@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
+import ProductPurchaseArea from "@/components/ProductPurchaseArea";
 import SectionContainer from "@/components/ui/SectionContainer";
 import { Package, TrendingUp, ShieldCheck, ChevronRight } from "lucide-react";
 
@@ -14,6 +15,13 @@ interface Product {
   price: number;
   available_count: number;
   image_url?: string;
+  variants?: {
+    id: number;
+    name: string;
+    price: number;
+    available_count: number;
+    is_in_stock: boolean;
+  }[];
 }
 
 type Props = {
@@ -131,13 +139,6 @@ export default async function ProductPage({ params }: Props) {
             {product.name}
           </h1>
           
-          <div className="glass-panel p-6 rounded-2xl mb-8">
-            <span className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600 tracking-tight block mb-1">
-              R$ {Number(product.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-            </span>
-            <span className="text-sm text-text-tertiary font-medium">À vista no PIX com entrega imediata</span>
-          </div>
-          
           <div className="mb-8 flex-1">
             <h3 className="text-lg font-display font-semibold text-white mb-3">Descrição do Produto</h3>
             <p className="text-text-secondary leading-relaxed whitespace-pre-line text-sm md:text-base">
@@ -145,22 +146,12 @@ export default async function ProductPage({ params }: Props) {
             </p>
           </div>
           
-          <div className="mt-auto pt-6 border-t border-white/10">
-            <AddToCartButton 
-              product={{
-                id: product.id,
-                slug: product.slug,
-                name: product.name,
-                price: product.price,
-              }}
-              isOutOfStock={isOutOfStock}
-            />
-            
-            <p className="flex items-center justify-center gap-2 text-xs text-text-tertiary mt-6 bg-white/5 py-3 rounded-lg border border-white/5">
-              <ShieldCheck size={16} className="text-brand-500" />
-              Compra protegida e chaves 100% originais.
-            </p>
-          </div>
+          <ProductPurchaseArea product={product} />
+          
+          <p className="flex items-center justify-center gap-2 text-xs text-text-tertiary mt-6 bg-white/5 py-3 rounded-lg border border-white/5">
+            <ShieldCheck size={16} className="text-brand-500" />
+            Compra protegida e chaves 100% originais.
+          </p>
         </div>
       </div>
     </SectionContainer>

@@ -44,7 +44,11 @@ export default function CheckoutPage() {
         email: user?.email,
         gateway,
         coupon_code: coupon?.code || null,
-        items: items.map(i => ({ product_id: i.id, quantity: i.quantity }))
+        items: items.map(i => ({ 
+          product_id: i.id, 
+          variant_id: i.variant_id || null,
+          quantity: i.quantity 
+        }))
       };
       
       const data = await apiFetch<{ order: { uuid: string } }>("/checkout", {
@@ -213,8 +217,11 @@ export default function CheckoutPage() {
              
              <div className="flex flex-col gap-4 mb-6 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-surface-700">
                {items.map(item => (
-                  <div key={item.id} className="flex justify-between items-center py-3 border-b border-white/5">
-                     <span className="text-sm font-medium text-text-secondary"><span className="text-brand-400 mr-2">{item.quantity}x</span> {item.name}</span>
+                  <div key={item.cartItemId} className="flex justify-between items-center py-3 border-b border-white/5">
+                     <div className="flex flex-col">
+                       <span className="text-sm font-medium text-text-secondary"><span className="text-brand-400 mr-2">{item.quantity}x</span> {item.name}</span>
+                       {item.variant_name && <span className="text-xs text-brand-400 mt-0.5 ml-6">{item.variant_name}</span>}
+                     </div>
                      <span className="font-semibold whitespace-nowrap">R$ {(item.price * item.quantity).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                   </div>
                ))}
