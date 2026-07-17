@@ -34,9 +34,14 @@ async function getProduct(slug: string): Promise<Product | null> {
   try {
     let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     
-    // Se for URL relativa, tenta montar absoluta (necessário para Server Components no Next.js)
-    if (apiUrl.startsWith("/")) {
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://mtdstore.test";
+    // Determina a URL base: 
+    // Na Vercel, forçamos para a API de produção (Render) se o NEXT_PUBLIC_API_URL estiver local.
+    const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV;
+    
+    if (isVercel || apiUrl.includes('mtdstore.test') || apiUrl.includes('localhost')) {
+      apiUrl = "https://mtdstore.onrender.com/api/v1";
+    } else if (apiUrl.startsWith("/")) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mtdstore.onrender.com";
       apiUrl = `${baseUrl}${apiUrl}`;
     }
 

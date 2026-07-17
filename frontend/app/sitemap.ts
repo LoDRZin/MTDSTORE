@@ -1,4 +1,4 @@
-﻿import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -6,7 +6,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all products to include in sitemap
   let products: { slug: string; updated_at?: string }[] = [];
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV;
+    
+    if (isVercel || apiUrl.includes('mtdstore.test') || apiUrl.includes('localhost')) {
+      apiUrl = "https://mtdstore.onrender.com/api/v1";
+    }
     const res = await fetch(`${apiUrl}/products`, { next: { revalidate: 3600 } });
     if (res.ok) {
       const data = await res.json();

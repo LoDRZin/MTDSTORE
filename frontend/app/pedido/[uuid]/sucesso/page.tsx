@@ -34,7 +34,11 @@ function SuccessContent({ uuid }: { uuid: string }) {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+        let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+        const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV;
+        if (isVercel || apiUrl.includes('mtdstore.test') || apiUrl.includes('localhost')) {
+          apiUrl = "https://mtdstore.onrender.com/api/v1";
+        }
         
         if (signature && expires) {
           // Acesso via link assinado (e-mail)

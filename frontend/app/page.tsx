@@ -21,7 +21,11 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
     if (searchParams.in_stock) params.append("in_stock", String(searchParams.in_stock));
     if (searchParams.page) params.append("page", String(searchParams.page));
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV;
+    if (isVercel || apiUrl.includes('mtdstore.test') || apiUrl.includes('localhost')) {
+      apiUrl = "https://mtdstore.onrender.com/api/v1";
+    }
     const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
       cache: "no-store",
     });
@@ -39,7 +43,11 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
 
 async function getCategories() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+    const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV;
+    if (isVercel || apiUrl.includes('mtdstore.test') || apiUrl.includes('localhost')) {
+      apiUrl = "https://mtdstore.onrender.com/api/v1";
+    }
     const res = await fetch(`${apiUrl}/categories`, {
       cache: "no-store",
     });
