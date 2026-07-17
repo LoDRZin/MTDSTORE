@@ -13,3 +13,5 @@ Artisan::command('inspire', function () {
 Schedule::job(new ReconcileStockCounters)->dailyAt('03:00')
     ->name('reconcile-stock-counters')
     ->withoutOverlapping();
+
+Schedule::command('queue:heartbeat')->everyMinute();

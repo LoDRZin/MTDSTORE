@@ -128,6 +128,18 @@ export default function Header() {
                     <p className="text-sm font-semibold truncate">{user.name}</p>
                     <p className="text-xs text-text-tertiary truncate">{user.email}</p>
                   </div>
+                  
+                  {user.is_admin && (
+                    <a
+                      href="https://mtdstore.onrender.com/admin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 p-3 text-sm text-brand-400 hover:text-brand-300 hover:bg-brand-500/10 transition-colors text-left border-b border-white/5"
+                    >
+                      <Zap size={16} /> Painel Admin
+                    </a>
+                  )}
+
                   <button
                     onClick={logout}
                     className="flex items-center gap-2 p-3 text-sm text-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-colors text-left"

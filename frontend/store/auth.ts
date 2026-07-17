@@ -9,6 +9,7 @@ export interface UserProfile {
   email: string;
   avatar?: string;
   google_id?: string;
+  is_admin?: boolean;
 }
 
 interface AuthState {

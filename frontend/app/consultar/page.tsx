@@ -24,9 +24,17 @@ export default function LookupPage() {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<OrderData | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!uuid || !email) return;
+    const formData = new FormData(e.currentTarget);
+    const formUuid = (formData.get('uuid') as string)?.trim();
+    const formEmail = (formData.get('email') as string)?.trim();
+
+    if (!formUuid || !formEmail) return;
+    
+    // Atualiza o state visual se o autofill não tiver disparado
+    setUuid(formUuid);
+    setEmail(formEmail);
     
     setLoading(true);
     setError("");
@@ -34,7 +42,9 @@ export default function LookupPage() {
     
     try {
       setLoading(true);
-      const data = await apiFetch<{ order?: { uuid: string; status: string; total: number; items: Array<{ product_name: string; key?: string }> } }>(`/orders/${uuid}/lookup`);
+      const data = await apiFetch<{ order?: { uuid: string; status: string; total: number; items: Array<{ product_name: string; key?: string }> } }>(
+        `/orders/${formUuid}/lookup?email=${encodeURIComponent(formEmail)}`
+      );
       
       setOrder({
         uuid: data.order?.uuid || uuid,
@@ -91,10 +101,12 @@ export default function LookupPage() {
               <input 
                 type="text" 
                 required
+                name="uuid"
                 className="w-full bg-surface-950 border border-white/10 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl p-4 transition-all text-white placeholder:text-surface-600 outline-none font-mono text-sm"
                 placeholder="Ex: 123e4567-e89b-12d3..."
-                value={uuid}
-                onChange={(e) => setUuid(e.target.value.trim())}
+                defaultValue={uuid}
+                onChange={(e) => setUuid(e.target.value)}
+                onBlur={(e) => setUuid(e.target.value)}
               />
             </div>
             
@@ -103,10 +115,12 @@ export default function LookupPage() {
               <input 
                 type="email" 
                 required
+                name="email"
                 className="w-full bg-surface-950 border border-white/10 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl p-4 transition-all text-white placeholder:text-surface-600 outline-none"
                 placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value.trim())}
+                defaultValue={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={(e) => setEmail(e.target.value)}
               />
             </div>
             

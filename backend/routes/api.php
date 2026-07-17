@@ -44,4 +44,24 @@ Route::post('/webhooks/{gateway}', [\App\Http\Controllers\Api\WebhookController:
     Route::get('/orders/{order}/success', [\App\Http\Controllers\Api\SuccessController::class, 'show'])
         ->name('orders.success')
         ->middleware('signed');
+        
+    // Health check para monitoramento do worker da fila (Horizon)
+    Route::get('/health/queue', function () {
+        $lastHeartbeat = \Illuminate\Support\Facades\Redis::get('worker_heartbeat');
+    
+        if (!$lastHeartbeat) {
+            return response()->json(['status' => 'unknown', 'reason' => 'no heartbeat found'], 503);
+        }
+    
+        $secondsSinceLastBeat = now()->timestamp - (int) $lastHeartbeat;
+    
+        if ($secondsSinceLastBeat > 180) {
+            return response()->json([
+                'status' => 'stale',
+                'seconds_since_last_beat' => $secondsSinceLastBeat,
+            ], 503);
+        }
+    
+        return response()->json(['status' => 'ok', 'seconds_since_last_beat' => $secondsSinceLastBeat]);
+    });
 });

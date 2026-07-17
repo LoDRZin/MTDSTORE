@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
+    supervisor \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instala todas as extensões de uma vez (baixando os binários prontos)
@@ -27,6 +28,9 @@ COPY . .
 # Instala dependências do Composer para produção (ignorando versão do PHP do lockfile local)
 RUN composer install --no-interaction --optimize-autoloader --no-dev --ignore-platform-reqs
 
+# Copia a configuração do Supervisor
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Ajusta permissões do storage
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
@@ -34,5 +38,5 @@ RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 # Expõe a porta padrão (o Render vai injetar a variável PORT dinamicamente)
 EXPOSE 8000
 
-# Comando para rodar a aplicação (aceita a variável PORT do Render ou cai pro 8000)
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Comando para rodar a aplicação via Supervisor (controla Web, Horizon e Scheduler)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
