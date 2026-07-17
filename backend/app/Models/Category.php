@@ -12,6 +12,19 @@ class Category extends Model
 {
     use HasFactory;
 
+    protected static function booted()
+    {
+        static::saved(function ($category) {
+            \Illuminate\Support\Facades\Cache::tags(['categories'])->flush();
+            \Illuminate\Support\Facades\Cache::forget('categories.tree');
+        });
+
+        static::deleted(function ($category) {
+            \Illuminate\Support\Facades\Cache::tags(['categories'])->flush();
+            \Illuminate\Support\Facades\Cache::forget('categories.tree');
+        });
+    }
+
     protected $fillable = [
         'name',
         'slug',

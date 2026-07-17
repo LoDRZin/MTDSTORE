@@ -37,7 +37,7 @@ async function getCategories() {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
     const res = await fetch(`${apiUrl}/categories`, {
-      next: { revalidate: 3600, tags: ["categories"] },
+      next: { revalidate: 60, tags: ["categories"] },
     });
     if (!res.ok) throw new Error("Failed to fetch categories");
     const data = await res.json();
