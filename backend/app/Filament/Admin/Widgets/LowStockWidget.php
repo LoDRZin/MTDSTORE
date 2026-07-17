@@ -10,14 +10,14 @@ class LowStockWidget extends StatsOverviewWidget
     protected function getStats(): array
     {
         return \Illuminate\Support\Facades\Cache::remember('admin_dashboard_low_stock', now()->addMinutes(5), function () {
-            // Otimização: Evitar N+1 queries e timeouts do Redis ao carregar o dashboard
-            // Usamos withCount() e filtramos via collection (rápido e compatível com PGSQL)
+            // Otimização: Evitar carregar milhares de produtos na memória (N+1 oculto no get)
+            // Resolvemos 100% no banco de dados usando whereHas com operador <
             $lowStockCount = \App\Models\Product::whereIn('status', ['active', 'published'])
-                ->withCount(['stockItems' => function ($query) {
-                    $query->where('status', 'available');
-                }])
-                ->get()
-                ->filter(fn($product) => $product->stock_items_count < 5)
+                ->where(function ($query) {
+                    $query->whereHas('stockItems', function ($q) {
+                        $q->where('status', 'available');
+                    }, '<', 5);
+                })
                 ->count();
 
             return [

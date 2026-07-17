@@ -31,8 +31,8 @@ class TopProductsWidget extends BaseWidget
             ->query(
                 Product::query()
                     ->select('products.*')
-                    ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as total_revenue')
-                    ->selectRaw('COALESCE(SUM(order_items.quantity), 0) as total_sales')
+                    ->selectRaw('COALESCE(SUM(order_items.unit_price), 0) as total_revenue')
+                    ->selectRaw('COUNT(order_items.id) as total_sales')
                     ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
                     ->leftJoin('orders', function ($join) use ($period) {
                         $join->on('order_items.order_id', '=', 'orders.id')
@@ -53,7 +53,7 @@ class TopProductsWidget extends BaseWidget
                         }
                     })
                     ->groupBy('products.id')
-                    ->havingRaw('COALESCE(SUM(order_items.quantity), 0) > 0') // Only products with sales
+                    ->havingRaw('COUNT(order_items.id) > 0') // Only products with sales
                     ->orderByDesc('total_revenue')
                     ->limit(5)
             )
