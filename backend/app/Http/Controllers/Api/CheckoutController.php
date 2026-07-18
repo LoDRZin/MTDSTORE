@@ -18,7 +18,7 @@ class CheckoutController extends Controller
             'items.*.quantity'    => 'required|integer|min:1',
             'items.*.variant_id'  => 'nullable|integer',
             'coupon_code'         => 'nullable|string',
-            'gateway'             => 'required|string|in:mercadopago,stripe',
+            'gateway'             => 'required|string|in:mercadopago,stripe,efi,oxapay,wise',
         ]);
 
         try {

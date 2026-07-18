@@ -16,10 +16,12 @@ class PaymentGatewayFactory
     public static function make(string $gatewayName): PaymentGatewayInterface
     {
         return match ($gatewayName) {
-            'stripe' => app(StripeGateway::class),
+            'stripe'      => app(StripeGateway::class),
             'mercadopago' => app(MercadoPagoGateway::class),
-            'efi' => app(EfiGateway::class),
-            default => throw new InvalidArgumentException("Gateway não suportado: {$gatewayName}"),
+            'efi'         => app(EfiGateway::class),
+            'oxapay'      => app(OxaPayGateway::class),
+            'wise'        => app(WiseGateway::class),
+            default       => throw new InvalidArgumentException("Gateway não suportado: {$gatewayName}"),
         };
     }
 }

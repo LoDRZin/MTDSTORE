@@ -47,9 +47,32 @@ return [
     ],
 
     'stripe' => [
-        'key' => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
+        'key'            => env('STRIPE_KEY'),
+        'secret'         => env('STRIPE_SECRET'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'efi' => [
+        'url'           => env('EFI_URL', 'https://pix.api.efipay.com.br'),
+        'client_id'     => env('EFI_CLIENT_ID', ''),
+        'client_secret' => env('EFI_CLIENT_SECRET', ''),
+        'cert_path'     => env('EFI_CERT_PATH', ''),   // Caminho absoluto para o .p12 ou .pem
+        'pix_key'       => env('EFI_PIX_KEY', ''),     // Chave PIX cadastrada na Efí
+        'sandbox'       => env('EFI_SANDBOX', true),
+    ],
+
+    'oxapay' => [
+        'merchant_key'   => env('OXAPAY_MERCHANT_KEY', ''),
+        'webhook_secret' => env('OXAPAY_WEBHOOK_SECRET', ''),
+        'base_url'       => 'https://api.oxapay.com',
+    ],
+
+    'wise' => [
+        'api_key'        => env('WISE_API_KEY', ''),
+        'profile_id'     => env('WISE_PROFILE_ID', ''),  // ID do perfil Business na Wise
+        'account_email'  => env('WISE_ACCOUNT_EMAIL', ''),
+        'webhook_secret' => env('WISE_WEBHOOK_SECRET', ''),
+        'sandbox'        => env('WISE_SANDBOX', true),
     ],
 
 ];
