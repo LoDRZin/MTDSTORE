@@ -1,3 +1,4 @@
+
 ---
 title: "Implementation Prompt — Painel Admin Completo (Todos os Módulos) — MTD STORE"
 status: "Pronto para execução, por fases"

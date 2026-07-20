@@ -18,6 +18,8 @@ class Review extends Model
         'status',
     ];
 
+    protected $casts = ['rating' => 'integer'];
+
     public function order()
     {
         return $this->belongsTo(Order::class);

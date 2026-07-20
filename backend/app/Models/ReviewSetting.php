@@ -20,4 +20,13 @@ class ReviewSetting extends Model
         'auto_publish' => 'boolean',
         'suggested_phrases' => 'array',
     ];
+
+    public static function current(): self
+    {
+        return static::firstOrCreate([], [
+            'enabled' => true,
+            'auto_publish' => false,
+            'suggested_phrases' => [],
+        ]);
+    }
 }

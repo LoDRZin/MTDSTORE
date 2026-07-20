@@ -43,6 +43,8 @@ class DeliverDigitalProduct implements ShouldQueue
         \Illuminate\Support\Facades\Mail::to($this->order->customer->email ?? $this->order->customer_email)->send(
             new \App\Mail\DigitalProductDelivered($this->order, $signedUrl)
         );
+
+        SendReviewRequest::dispatch($this->order);
     }
 
     /**

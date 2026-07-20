@@ -48,6 +48,12 @@ Route::post('/webhooks/{gateway}', [\App\Http\Controllers\Api\WebhookController:
     Route::get('/orders/{order}/items/{item}/download', [\App\Http\Controllers\Api\SuccessController::class, 'download'])
         ->name('orders.download')
         ->middleware('signed');
+
+    Route::get('/reviews/{order}/{product}', [\App\Http\Controllers\Api\ReviewController::class, 'show'])
+        ->name('reviews.form')
+        ->middleware('signed');
+    Route::post('/reviews/{order}/{product}', [\App\Http\Controllers\Api\ReviewController::class, 'store'])
+        ->middleware('signed');
         
     // Health check para monitoramento do worker da fila (Horizon)
     Route::get('/health/queue', function () {
