@@ -32,4 +32,11 @@ class StoreSetting extends Model
         'social_links' => 'array',
         'business_hours' => 'array',
     ];
+
+    public static function current(): self
+    {
+        return static::firstOrCreate([], [
+            'store_name' => 'MTD STORE',
+        ]);
+    }
 }

@@ -53,6 +53,10 @@ class Product extends Model
                 throw new \InvalidArgumentException("Preço não pode ser negativo");
             }
         });
+
+        static::created(function ($product) {
+            \App\Jobs\DispatchWebhookJob::dispatch('product.created', $product->toArray());
+        });
     }
 
     // ─── Relationships ───────────────────────────────────────────

@@ -35,6 +35,16 @@ class Order extends Model
                 throw new \InvalidArgumentException("Status de pedido inválido: {$order->status}");
             }
         });
+
+        static::created(function ($order) {
+            \App\Jobs\DispatchWebhookJob::dispatch('order.created', $order->toArray());
+        });
+
+        static::updated(function ($order) {
+            if ($order->isDirty('status')) {
+                \App\Jobs\DispatchWebhookJob::dispatch('order.' . $order->status, $order->toArray());
+            }
+        });
     }
 
     public function customer(): BelongsTo
