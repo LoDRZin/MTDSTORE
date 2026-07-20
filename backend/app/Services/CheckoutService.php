@@ -33,14 +33,14 @@ class CheckoutService
     {
         return DB::transaction(function () use ($customer, $cartItems, $couponCode, $gateway) {
             // 1. Calcular total e validar
-            $cartTotalDto = $this->cartService->calculateTotal($cartItems, $couponCode);
+            $cartTotalDto = $this->cartService->calculateTotal($cartItems, $couponCode, $customer->id, $gateway);
 
             if (!empty($cartTotalDto->errors)) {
                 throw new Exception("Erro no carrinho: " . implode(" | ", $cartTotalDto->errors));
             }
 
             // 2. Criar registro do pedido
-            $coupon = $couponCode ? Coupon::where('code', $couponCode)->first() : null;
+            $coupon = $couponCode ? Coupon::where('code', strtoupper(trim($couponCode)))->first() : null;
 
             $order = Order::create([
                 'uuid' => (string) Str::uuid(),

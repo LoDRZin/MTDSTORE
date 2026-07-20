@@ -49,9 +49,9 @@ class CheckoutServiceTest extends TestCase
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseCount('order_items', 2);
         
-        // Ensure stock items are sold
-        $this->assertEquals(2, ProductStockItem::where('status', 'sold')->count());
-        $this->assertEquals(0, ProductStockItem::where('status', 'available')->count());
+        // Stock is allocated only after the payment webhook confirms the order.
+        $this->assertEquals(0, ProductStockItem::where('status', 'sold')->count());
+        $this->assertEquals(2, ProductStockItem::where('status', 'available')->count());
     }
 
     public function test_checkout_fails_if_cart_total_has_errors()
@@ -68,7 +68,7 @@ class CheckoutServiceTest extends TestCase
         $this->service->process($customer, $cartItems, null, 'stripe');
     }
 
-    public function test_checkout_with_coupon_redeems_coupon()
+    public function test_checkout_with_coupon_defers_redemption_until_payment_confirmation()
     {
         $customer = User::factory()->create();
         $product = Product::factory()->create(['price' => 50, 'status' => 'active']);
@@ -88,7 +88,7 @@ class CheckoutServiceTest extends TestCase
         $order = $this->service->process($customer, $cartItems, 'TEST10', 'stripe');
 
         $this->assertEquals(40.0, $order->total); // 50 - 10
-        $this->assertEquals(1, $coupon->fresh()->uses_count);
+        $this->assertEquals(0, $coupon->fresh()->uses_count);
     }
 
     public function test_concurrent_checkout_throws_exception_if_stock_disappears()
@@ -111,7 +111,7 @@ class CheckoutServiceTest extends TestCase
         ProductStockItem::where('product_id', $product->id)->update(['status' => 'sold']);
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage("Estoque indisponível para o produto #{$product->id} no momento da compra.");
+        $this->expectExceptionMessage('Estoque insuficiente');
 
         // Should fail here because lockForUpdate will return 0 items
         app(CheckoutService::class)->process($customer, $cartItems, null, 'stripe');

@@ -16,10 +16,16 @@ class CartController extends Controller
             'items.*.product_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.variant_id' => 'nullable|integer',
-            'coupon_code' => 'nullable|string'
+            'coupon_code' => 'nullable|string',
+            'payment_method' => 'nullable|string|in:mercadopago,stripe,efi,oxapay,wise',
         ]);
 
-        $dto = $this->cartService->calculateTotal($request->items, $request->coupon_code);
+        $dto = $this->cartService->calculateTotal(
+            $request->items,
+            $request->coupon_code,
+            $request->user('sanctum')?->id,
+            $request->input('payment_method'),
+        );
 
         return response()->json([
             'subtotal' => $dto->subtotal,

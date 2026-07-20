@@ -19,10 +19,16 @@ class CartService
      * @param string|null $couponCode
      * @return CartTotalDTO
      */
-    public function calculateTotal(array $cartItems, ?string $couponCode = null): CartTotalDTO
+    public function calculateTotal(
+        array $cartItems,
+        ?string $couponCode = null,
+        ?int $userId = null,
+        ?string $paymentMethod = null,
+    ): CartTotalDTO
     {
         $subtotal = 0.0;
         $errors = [];
+        $cartProductIds = [];
 
         // Verifica cada item
         foreach ($cartItems as $item) {
@@ -64,6 +70,7 @@ class CartService
             }
 
             $subtotal += ($price * $quantity);
+            $cartProductIds[] = $product->id;
         }
 
         $discount = 0.0;
@@ -72,7 +79,13 @@ class CartService
         // Tenta aplicar cupom se não houver erros no carrinho
         if (empty($errors) && $couponCode) {
             try {
-                $couponDto = $this->couponService->validate($couponCode, $subtotal);
+                $couponDto = $this->couponService->validate(
+                    $couponCode,
+                    $subtotal,
+                    array_values(array_unique($cartProductIds)),
+                    $userId,
+                    $paymentMethod,
+                );
                 $discount = $couponDto->discountValue;
                 $appliedCoupon = $couponDto->code;
             } catch (\Exception $e) {
