@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Post extends Model
 {
@@ -16,4 +17,17 @@ class Post extends Model
         'cover_image',
         'status',
     ];
+
+    protected $casts = [
+        'status' => 'string',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $post): void {
+            if (! in_array($post->status, ['draft', 'published'], true)) {
+                throw new \InvalidArgumentException('Status de postagem invÃ¡lido.');
+            }
+        });
+    }
 }

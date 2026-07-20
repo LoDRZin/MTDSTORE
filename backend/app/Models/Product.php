@@ -105,8 +105,11 @@ class Product extends Model
     /** Filter to products that have at least one available stock item */
     public function scopeInStock($query)
     {
-        return $query->whereHas('stockItems', function ($q) {
-            $q->where('status', 'available');
+        return $query->where(function ($q) {
+            $q->where('delivery_type', 'file_download')
+                ->orWhereHas('stockItems', function ($stockQuery) {
+                    $stockQuery->where('status', 'available');
+                });
         });
     }
 

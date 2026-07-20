@@ -2,101 +2,86 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class CategorizeProducts extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'data:categorize-products';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Auto categorize all products based on their names and descriptions, and remove unused categories';
+    protected $description = 'Categoriza produtos a partir do nome e da descriÃ§Ã£o.';
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    public function handle(): int
     {
-        // Remove "UTILITÁRIOS" category
-        $util = Category::where('name', 'LIKE', '%UTILIT%RIOS%')->orWhere('name', 'UTILITÁRIOS')->first();
-        if ($util) {
-            $util->products()->detach();
-            $util->delete();
-            $this->info("Categoria UTILITÁRIOS removida.");
-        }
-
-        // Get all categories to match
-        $categories = Category::all();
-        $map = [
+        $categories = Category::query()->get();
+        $keywords = [
             'spoofer' => ['spoofer', 'hwid', 'bypass', 'unban'],
             'internal' => ['internal', 'injetor', 'injected', 'dll'],
-            'external' => ['external', 'overlay', 'diário', 'mensal'], // usually FiveM externals
+            'external' => ['external', 'overlay', 'diÃ¡rio', 'mensal'],
             'fivem' => ['fivem', 'gta', 'cidade', 'rp'],
-            'contas' => ['conta', 'account', 'netflix', 'spotify', 'serviço', 'assinatura', 'premium', 'discord', 'nitro'],
+            'contas' => ['conta', 'account', 'netflix', 'spotify', 'serviÃ§o', 'assinatura', 'premium', 'discord', 'nitro'],
             'outros' => ['outro', 'miscellaneous', 'diversos', 'key'],
             'cheat' => ['cheat', 'hack', 'mod menu', 'aimbot', 'esp'],
         ];
 
-        // Find the best category objects based on keywords
-        $catObjects = [
-            'spoofers' => $categories->first(fn($c) => stripos($c->name, 'spoofer') !== false),
-            'internals_fivem' => $categories->first(fn($c) => stripos($c->name, 'internal') !== false && stripos($c->name, 'fivem') !== false),
-            'externals_fivem' => $categories->first(fn($c) => stripos($c->name, 'external') !== false && stripos($c->name, 'fivem') !== false),
-            'cheats_outros' => $categories->first(fn($c) => stripos($c->name, 'cheat') !== false && stripos($c->name, 'outro') !== false),
-        $products = Product::all();
+        $categoryByKeyword = [
+            'spoofer' => $this->findCategory($categories, 'spoofer'),
+            'internal' => $this->findCategory($categories, 'internal', 'fivem'),
+            'external' => $this->findCategory($categories, 'external', 'fivem'),
+            'cheat' => $this->findCategory($categories, 'cheat', 'outro'),
+            'contas' => $this->findCategory($categories, 'conta'),
+            'outros' => $this->findCategory($categories, 'outro'),
+        ];
+
         $count = 0;
-                    if ($catObjects['internals_fivem']) $assignedCategories[] = $catObjects['internals_fivem']->id;
-                } else {
-                    // Default to external if not explicitly internal for FiveM, or if explicitly external
-                    if ($catObjects['externals_fivem']) $assignedCategories[] = $catObjects['externals_fivem']->id;
+        Product::query()->with('categories')->each(function (Product $product) use ($keywords, $categoryByKeyword, &$count): void {
+            $text = mb_strtolower($product->name . ' ' . ($product->description ?? ''));
+            $assigned = [];
+
+            if ($this->hasKeyword($text, $keywords['spoofer']) && $categoryByKeyword['spoofer']) {
+                $assigned[] = $categoryByKeyword['spoofer']->id;
+            }
+
+            if ($this->hasKeyword($text, $keywords['fivem'])) {
+                $isInternal = $this->hasKeyword($text, $keywords['internal']);
+                $category = $isInternal ? $categoryByKeyword['internal'] : $categoryByKeyword['external'];
+                if ($category) {
+                    $assigned[] = $category->id;
                 }
-            } 
-            // Other cheats (Valorant, CSGO, etc)
-            elseif ($this->hasKeyword($text, $map['cheat'])) {
-                 if ($catObjects['cheats_outros']) $assignedCategories[] = $catObjects['cheats_outros']->id;
-            }
-            
-            // Contas
-            if ($this->hasKeyword($text, $map['contas'])) {
-                if ($catObjects['contas']) $assignedCategories[] = $catObjects['contas']->id;
+            } elseif ($this->hasKeyword($text, $keywords['cheat']) && $categoryByKeyword['cheat']) {
+                $assigned[] = $categoryByKeyword['cheat']->id;
             }
 
-            // Default to outros if nothing matched
-            if (empty($assignedCategories)) {
-                 $assignedCategories[] = $catObjects['outros']->id;
+            if ($this->hasKeyword($text, $keywords['contas']) && $categoryByKeyword['contas']) {
+                $assigned[] = $categoryByKeyword['contas']->id;
             }
 
-            // Deduplicate and sync
-            $assignedCategories = array_unique($assignedCategories);
-            $product->categories()->sync($assignedCategories);
-            $count++;
-            
-            $this->line("Categorizado: {$product->name} -> " . count($assignedCategories) . " categorias.");
-        }
+            if ($assigned === [] && $categoryByKeyword['outros']) {
+                $assigned[] = $categoryByKeyword['outros']->id;
+            }
 
-        $this->info("Concluído! {$count} produtos foram categorizados.");
-        
-        // Limpa o cache
-        // Clear cache
-        \Illuminate\Support\Facades\Cache::forget('categories.tree');
-        $this->info("Cache de categorias invalidado.");
+            if ($assigned !== []) {
+                $product->categories()->sync(array_unique($assigned));
+                $count++;
+            }
+        });
+
+        Cache::forget('categories.tree');
+        $this->info("ConcluÃ­do: {$count} produtos categorizados.");
+
+        return self::SUCCESS;
     }
 
-    private function hasKeyword($text, $keywords)
+    private function findCategory($categories, string ...$terms): ?Category
     {
-        foreach ($keywords as $kw) {
-            if (stripos($text, $kw) !== false) return true;
-        }
-        return false;
+        return $categories->first(fn (Category $category) => collect($terms)
+            ->every(fn (string $term) => str_contains(mb_strtolower($category->name), $term)));
+    }
+
+    private function hasKeyword(string $text, array $keywords): bool
+    {
+        return collect($keywords)->contains(fn (string $keyword) => str_contains($text, $keyword));
     }
 }

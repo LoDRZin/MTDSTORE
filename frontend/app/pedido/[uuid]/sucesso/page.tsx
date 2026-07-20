@@ -169,7 +169,7 @@ function SuccessContent({ uuid }: { uuid: string }) {
             {/* Download de Arquivo */}
             {item.delivery_type === 'file_download' && item.file_url && (
               <div className="flex justify-center my-6">
-                <a href={process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') + item.file_url} target="_blank" rel="noopener noreferrer" className="w-full">
+                <a href={item.file_url} target="_blank" rel="noopener noreferrer" className="w-full">
                   <PremiumButton size="lg" className="w-full flex items-center justify-center gap-2">
                     <Download size={20} /> Baixar Arquivo
                   </PremiumButton>

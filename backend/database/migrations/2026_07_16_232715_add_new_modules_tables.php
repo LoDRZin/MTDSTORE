@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,8 +15,10 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Modificar orders.status (Solução nativa para PostgreSQL)
-        DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
-        DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status::text = ANY (ARRAY['pending'::character varying, 'awaiting_payment'::character varying, 'paid'::character varying, 'failed'::character varying, 'refunded'::character varying, 'partially_refunded'::character varying, 'chargeback'::character varying]::text[]))");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
+            DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status::text = ANY (ARRAY['pending'::character varying, 'awaiting_payment'::character varying, 'paid'::character varying, 'failed'::character varying, 'refunded'::character varying, 'partially_refunded'::character varying, 'chargeback'::character varying]::text[]))");
+        }
 
         if (!Schema::hasColumn('orders', 'refunded_amount')) {
             Schema::table('orders', function (Blueprint $table) {
@@ -122,6 +125,11 @@ return new class extends Migration
         if (!Schema::hasColumn('affiliates', 'min_withdrawal')) {
             Schema::table('affiliates', function (Blueprint $table) {
                 $table->decimal('min_withdrawal', 10, 2)->default(0);
+            });
+        }
+
+        if (!Schema::hasColumn('affiliates', 'cookie_duration_days')) {
+            Schema::table('affiliates', function (Blueprint $table) {
                 $table->unsignedSmallInteger('cookie_duration_days')->default(30);
             });
         }
@@ -168,6 +176,11 @@ return new class extends Migration
         if (!Schema::hasColumn('products', 'post_purchase_instructions')) {
             Schema::table('products', function (Blueprint $table) {
                 $table->longText('post_purchase_instructions')->nullable();
+            });
+        }
+
+        if (!Schema::hasColumn('products', 'delivery_type')) {
+            Schema::table('products', function (Blueprint $table) {
                 $table->enum('delivery_type', ['unique_key', 'file_download'])->default('unique_key');
             });
         }
@@ -182,6 +195,11 @@ return new class extends Migration
         if (!Schema::hasColumn('coupons', 'min_purchase_amount')) {
             Schema::table('coupons', function (Blueprint $table) {
                 $table->decimal('min_purchase_amount', 10, 2)->nullable();
+            });
+        }
+
+        if (!Schema::hasColumn('coupons', 'allowed_payment_methods')) {
+            Schema::table('coupons', function (Blueprint $table) {
                 $table->json('allowed_payment_methods')->nullable();
             });
         }
@@ -253,7 +271,9 @@ return new class extends Migration
             $table->dropColumn('refunded_amount');
         });
 
-        DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
-        DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status::text = ANY (ARRAY['pending'::character varying, 'awaiting_payment'::character varying, 'paid'::character varying, 'failed'::character varying, 'refunded'::character varying]::text[]))");
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check');
+            DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status::text = ANY (ARRAY['pending'::character varying, 'awaiting_payment'::character varying, 'paid'::character varying, 'failed'::character varying, 'refunded'::character varying]::text[]))");
+        }
     }
 };

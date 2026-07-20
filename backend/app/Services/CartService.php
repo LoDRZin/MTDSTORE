@@ -40,6 +40,11 @@ class CartService
             $price = $product->price;
             $itemName = $product->name;
 
+            if ($product->variants->isNotEmpty() && !$variantId) {
+                $errors[] = "Selecione uma variaÃ§Ã£o para o produto {$product->name}.";
+                continue;
+            }
+
             if ($variantId) {
                 $variant = $product->variants->firstWhere('id', $variantId);
                 if (!$variant) {

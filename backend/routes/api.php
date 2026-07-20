@@ -44,6 +44,10 @@ Route::post('/webhooks/{gateway}', [\App\Http\Controllers\Api\WebhookController:
     Route::get('/orders/{order}/success', [\App\Http\Controllers\Api\SuccessController::class, 'show'])
         ->name('orders.success')
         ->middleware('signed');
+
+    Route::get('/orders/{order}/items/{item}/download', [\App\Http\Controllers\Api\SuccessController::class, 'download'])
+        ->name('orders.download')
+        ->middleware('signed');
         
     // Health check para monitoramento do worker da fila (Horizon)
     Route::get('/health/queue', function () {
