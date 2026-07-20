@@ -60,6 +60,19 @@ class AffiliateForm
                                 ->default(10.0)
                                 ->suffix('%')
                                 ->helperText('Porcentagem que o afiliado ganha por venda aprovada.'),
+                            TextInput::make('min_withdrawal')
+                                ->label('Saque Mínimo (R$)')
+                                ->numeric()
+                                ->default(50.0)
+                                ->prefix('R$')
+                                ->helperText('Valor mínimo para o afiliado solicitar saque.'),
+                            TextInput::make('cookie_duration_days')
+                                ->label('Duração do Cookie (dias)')
+                                ->numeric()
+                                ->integer()
+                                ->default(30)
+                                ->suffix('dias')
+                                ->helperText('Por quantos dias o código de afiliado rastreia conversões.'),
                             Toggle::make('active')
                                 ->label('Conta Ativa?')
                                 ->default(true)
