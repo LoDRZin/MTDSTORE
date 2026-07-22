@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import ProductCard from "./ProductCard";
 import { Search, PackageX, ChevronLeft, LayoutGrid, ChevronRight, ChevronLeft as IconChevronLeft } from "lucide-react";
@@ -121,26 +122,36 @@ export default function ProductList({ initialProducts, categories, meta }: Produ
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((cat) => (
-              <motion.button
-                key={cat.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => selectCategory(cat.slug)}
-                className="flex flex-col items-center justify-center p-8 bg-surface-900/50 border border-white/10 rounded-2xl hover:border-brand-500/50 hover:bg-surface-800 transition-all group"
-              >
-                <div className="relative w-16 h-16 rounded-full bg-brand-500/10 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors overflow-hidden">
-                  {cat.image_url ? (
-                    <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="64px" />
-                  ) : (
-                    <LayoutGrid size={28} className="text-brand-500" />
-                  )}
-                </div>
-                <h3 className="text-xl font-display font-semibold text-white group-hover:text-brand-400 transition-colors">
-                  {cat.name}
-                </h3>
-              </motion.button>
-            ))}
+            {categories.map((cat) => {
+              const params = new URLSearchParams(searchParams.toString());
+              params.set("category", cat.slug);
+              params.delete("page");
+              const href = `${pathname}?${params.toString()}`;
+              return (
+                <motion.div
+                  key={cat.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Link
+                    href={href}
+                    scroll={false}
+                    className="flex flex-col items-center justify-center p-8 bg-surface-900/50 border border-white/10 rounded-2xl hover:border-brand-500/50 hover:bg-surface-800 transition-all group h-full w-full"
+                  >
+                    <div className="relative w-16 h-16 rounded-full bg-brand-500/10 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors overflow-hidden">
+                      {cat.image_url ? (
+                        <Image src={cat.image_url} alt={cat.name} fill className="object-cover" sizes="64px" />
+                      ) : (
+                        <LayoutGrid size={28} className="text-brand-500" />
+                      )}
+                    </div>
+                    <h3 className="text-xl font-display font-semibold text-white group-hover:text-brand-400 transition-colors">
+                      {cat.name}
+                    </h3>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
         </>
       ) : (
