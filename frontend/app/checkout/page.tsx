@@ -9,7 +9,7 @@ import PremiumButton from "@/components/ui/PremiumButton";
 import SectionContainer from "@/components/ui/SectionContainer";
 import {
   ShieldCheck, Mail, ShoppingCart, CreditCard, Bitcoin,
-  Globe, Copy, Check, Clock, ChevronRight, QrCode
+  Globe, Copy, Check, Clock, ChevronRight, QrCode, Tag, X, ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/api";
@@ -85,6 +85,7 @@ function CopyButton({ text }: { text: string }) {
   };
   return (
     <button
+      type="button"
       onClick={copy}
       className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-brand-600/20 text-brand-400 hover:bg-brand-600/30 transition-colors border border-brand-500/20"
     >
@@ -145,7 +146,7 @@ function PixModal({ qrCode, orderId, onClose }: { qrCode: string; orderId: strin
           <PremiumButton className="w-full mb-3" onClick={handleDone}>
             Já Paguei — Ver meu Pedido
           </PremiumButton>
-          <button onClick={onClose} className="text-sm text-text-tertiary hover:text-white transition-colors">
+          <button type="button" onClick={onClose} className="text-sm text-text-tertiary hover:text-white transition-colors">
             Cancelar e voltar
           </button>
         </div>
@@ -214,7 +215,7 @@ function WiseModal({ data, orderId, onClose }: { data: WiseData; orderId: string
         <PremiumButton className="w-full mb-3" onClick={handleDone}>
           Já Transferi — Aguardar Confirmação
         </PremiumButton>
-        <button onClick={onClose} className="text-sm text-text-tertiary hover:text-white transition-colors w-full text-center">
+        <button type="button" onClick={onClose} className="text-sm text-text-tertiary hover:text-white transition-colors w-full text-center">
           Cancelar e voltar
         </button>
       </motion.div>
@@ -225,7 +226,7 @@ function WiseModal({ data, orderId, onClose }: { data: WiseData; orderId: string
 // ─── Página Principal ──────────────────────────────────────────────────────────
 
 export default function CheckoutPage() {
-  const { items, clearCart, coupon } = useCartStore();
+  const { items, clearCart, coupon, applyCoupon, removeCoupon } = useCartStore();
   const { user, setAuthModalOpen } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
@@ -234,6 +235,12 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
   const [selectedGateway, setSelectedGateway] = useState<GatewayId>("stripe");
+
+  // Coupon states
+  const [couponInput, setCouponInput] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [isCouponOpen, setIsCouponOpen] = useState(false);
 
   // Modal states
   const [pixQrCode, setPixQrCode] = useState<string | null>(null);
@@ -245,7 +252,34 @@ export default function CheckoutPage() {
 
   if (!mounted) return null;
 
-  const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = Math.max(0, subtotal - (coupon?.discount || 0));
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setIsApplyingCoupon(true);
+    setCouponError("");
+
+    try {
+      const data = await apiFetch<{ code: string; discount: number; type: string }>("/coupon/validate", {
+        method: "POST",
+        body: JSON.stringify({
+          code: couponInput.trim(),
+          order_total: subtotal,
+          product_ids: items.map(i => i.id),
+          payment_method: selectedGateway
+        }),
+      });
+
+      applyCoupon(data);
+      setCouponInput("");
+      setIsCouponOpen(false);
+    } catch (err: any) {
+      setCouponError(err.message || "Cupom inválido");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -524,11 +558,82 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <div className="flex justify-between items-center mt-6 pt-6 border-t border-white/10 text-xl font-bold">
-                <span>Total</span>
-                <span className="text-brand-400 text-3xl">
-                  R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </span>
+              {/* Cupom Section */}
+              <div className="mt-4 pt-4 border-t border-white/5">
+                {!coupon ? (
+                  <div className="flex flex-col gap-2">
+                    <button 
+                      type="button"
+                      onClick={() => setIsCouponOpen(!isCouponOpen)}
+                      className="flex items-center justify-between text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors"
+                    >
+                      <span className="flex items-center gap-2"><Tag size={16}/> Adicionar cupom de desconto</span>
+                      <ChevronDown size={16} className={`transition-transform ${isCouponOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    <AnimatePresence>
+                      {isCouponOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex items-center gap-2 mt-3">
+                            <input
+                              type="text"
+                              placeholder="Digite seu cupom..."
+                              value={couponInput}
+                              onChange={(e) => setCouponInput(e.target.value)}
+                              className="flex-1 bg-surface-950 border border-white/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500/50 transition-colors"
+                              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
+                            />
+                            <button
+                              type="button"
+                              onClick={handleApplyCoupon}
+                              disabled={isApplyingCoupon || !couponInput.trim()}
+                              className="bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                            >
+                              {isApplyingCoupon ? "..." : "Aplicar"}
+                            </button>
+                          </div>
+                          {couponError && <p className="text-red-400 text-xs mt-2">{couponError}</p>}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between bg-brand-500/10 border border-brand-500/20 rounded-xl p-3">
+                    <div className="flex items-center gap-2 text-brand-400">
+                      <Tag size={16} />
+                      <span className="text-sm font-semibold uppercase">{coupon.code}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-green-400">- R$ {coupon.discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      <button type="button" onClick={removeCoupon} className="text-text-tertiary hover:text-white transition-colors">
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-white/10">
+                <div className="flex justify-between items-center text-text-secondary font-medium">
+                  <span>Subtotal</span>
+                  <span>R$ {subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                </div>
+                {coupon && (
+                  <div className="flex justify-between items-center text-green-400 font-medium">
+                    <span>Desconto ({coupon.code})</span>
+                    <span>- R$ {coupon.discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center mt-2 text-xl font-bold">
+                  <span>Total</span>
+                  <span className="text-brand-400 text-3xl">
+                    R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
               </div>
 
               {/* Logos dos gateways aceitos */}
