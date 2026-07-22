@@ -48,7 +48,8 @@ class EfiGateway implements PaymentGatewayInterface
         ]);
 
         if (!$response->successful()) {
-            throw new \Exception("Falha ao obter token da EFI.");
+            Log::error("EFI Token Error: " . $response->body());
+            throw new \Exception("Falha ao obter token da EFI: " . $response->body());
         }
 
         return $response->json('access_token');
