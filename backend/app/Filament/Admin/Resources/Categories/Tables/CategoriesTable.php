@@ -61,6 +61,7 @@ class CategoriesTable
                 ]),
             ])
             ->defaultSort('order')
-            ->reorderable('order');
+            ->reorderable('order')
+            ->modifyQueryUsing(fn ($query) => $query->with('parent'));
     }
 }

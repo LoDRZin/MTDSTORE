@@ -27,7 +27,7 @@ class PostResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'ConteÃºdo';
+        return 'Conteúdo';
     }
 
     public static function getNavigationSort(): ?int

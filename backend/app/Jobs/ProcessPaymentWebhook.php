@@ -109,15 +109,20 @@ class ProcessPaymentWebhook implements ShouldQueue
                     Log::error("Payment confirmed but failed to deliver: " . $e->getMessage());
                     
                     // Acionar reembolso automático
-                    $gateway = \App\Gateways\PaymentGatewayFactory::make($this->eventDto->gatewayName);
-                    $gateway->refund($order);
-                    
-                    $order->update(['status' => 'refunded']);
+                    try {
+                        $gateway = \App\Gateways\PaymentGatewayFactory::make($this->eventDto->gatewayName);
+                        $gateway->refund($order);
+                        $order->update(['status' => 'refunded']);
+                    } catch (Exception $refundException) {
+                        Log::critical("Falha ao tentar reembolsar automaticamente o pedido {$order->uuid}: " . $refundException->getMessage());
+                    }
 
                     // Invalida permanentemente as chaves que estavam atreladas a este pedido
                     $orderItemIds = $order->items()->pluck('id');
                     \App\Models\ProductStockItem::whereIn('order_item_id', $orderItemIds)
                         ->update(['status' => 'revoked']);
+
+                    throw $e; // Re-lança a exceção para que o Job seja marcado como falho e caia na Dead Letter Queue
                 }
             } elseif ($this->eventDto->status === 'failed') {
                 $order->update(['status' => 'failed']);

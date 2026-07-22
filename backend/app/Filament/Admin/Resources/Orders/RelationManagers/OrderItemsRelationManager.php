@@ -63,6 +63,7 @@ class OrderItemsRelationManager extends RelationManager
             ])
             ->bulkActions([
                 //
-            ]);
+            ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['product', 'stock_item']));
     }
 }

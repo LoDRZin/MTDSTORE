@@ -55,14 +55,20 @@ class CheckoutController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            $isDatabaseError = $e instanceof \Illuminate\Database\QueryException;
+            
+            if ($isDatabaseError) {
+                \Illuminate\Support\Facades\Log::error("Database Error on Checkout: " . $e->getMessage());
+            }
+
             return response()->json([
                 'error' => [
-                    'code'     => 'UNPROCESSABLE_ENTITY',
-                    'message'  => $e->getMessage(),
+                    'code'     => $isDatabaseError ? 'INTERNAL_SERVER_ERROR' : 'UNPROCESSABLE_ENTITY',
+                    'message'  => $isDatabaseError ? 'Ocorreu um erro interno ao processar seu pedido. Tente novamente mais tarde.' : $e->getMessage(),
                     'trace_id' => request()->header('X-Correlation-ID', uniqid()),
                     'details'  => [],
                 ],
-            ], 422);
+            ], $isDatabaseError ? 500 : 422);
         }
     }
 }

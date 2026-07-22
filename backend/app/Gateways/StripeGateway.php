@@ -18,7 +18,7 @@ class StripeGateway implements PaymentGatewayInterface
 
     public function createCharge(Order $order): PaymentIntentDTO
     {
-        $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'https://mtdstore.xyz'));
+        $frontendUrl = config('app.frontend_url', 'https://mtdstore.xyz');
         
         $session = \Stripe\Checkout\Session::create([
             'payment_method_types' => ['card', 'pix'], // Permite cartão e PIX no Stripe

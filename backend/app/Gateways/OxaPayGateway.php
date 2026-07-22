@@ -40,7 +40,7 @@ class OxaPayGateway implements PaymentGatewayInterface
 
     public function createCharge(Order $order): PaymentIntentDTO
     {
-        $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'https://mtdstore.xyz'));
+        $frontendUrl = config('app.frontend_url', 'https://mtdstore.xyz');
         $successUrl  = rtrim($frontendUrl, '/') . '/pedido/' . $order->uuid . '/sucesso';
         $cancelUrl   = rtrim($frontendUrl, '/') . '/checkout';
 

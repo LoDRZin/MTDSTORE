@@ -15,8 +15,8 @@ class ReviewResource extends Resource
     protected static ?string $model = Review::class;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedStar;
 
-    public static function getNavigationLabel(): string { return 'AvaliaÃ§Ãµes'; }
-    public static function getNavigationGroup(): ?string { return 'ConteÃºdo'; }
+    public static function getNavigationLabel(): string { return 'Avaliações'; }
+    public static function getNavigationGroup(): ?string { return 'Conteúdo'; }
     public static function form(Schema $schema): Schema { return $schema; }
 
     public static function table(Table $table): Table
@@ -25,7 +25,7 @@ class ReviewResource extends Resource
             \Filament\Tables\Columns\TextColumn::make('product.name')->label('Produto')->searchable(),
             \Filament\Tables\Columns\TextColumn::make('customer.email')->label('Cliente')->searchable(),
             \Filament\Tables\Columns\TextColumn::make('rating')->label('Nota')->badge()->color('warning'),
-            \Filament\Tables\Columns\TextColumn::make('comment')->label('ComentÃ¡rio')->limit(60),
+            \Filament\Tables\Columns\TextColumn::make('comment')->label('Comentário')->limit(60),
             \Filament\Tables\Columns\TextColumn::make('status')->badge()
                 ->formatStateUsing(fn (string $state) => $state === 'published' ? 'Publicada' : 'Privada')
                 ->color(fn (string $state) => $state === 'published' ? 'success' : 'gray'),

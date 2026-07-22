@@ -53,7 +53,7 @@ class PostForm
                         ->directory('posts/covers')
                         ->columnSpanFull(),
                     RichEditor::make('content')
-                        ->label('ConteÃºdo')
+                        ->label('Conteúdo')
                         ->required()
                         ->columnSpanFull(),
                 ]),
