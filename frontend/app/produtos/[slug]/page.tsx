@@ -46,7 +46,7 @@ async function getProduct(slug: string): Promise<Product | null> {
     }
 
     const res = await fetch(`${apiUrl}/products/${slug}`, {
-      cache: "no-store"
+      next: { revalidate: 60 }
     });
     
     if (!res.ok) {
