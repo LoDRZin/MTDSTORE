@@ -15,6 +15,7 @@ class CouponsTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 TextColumn::make('code')
                     ->label('Código')
@@ -81,3 +82,4 @@ class CouponsTable
             ]);
     }
 }
+

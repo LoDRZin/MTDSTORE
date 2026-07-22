@@ -16,6 +16,7 @@ class CategoriesTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 ImageColumn::make('image_url')
                     ->label('Imagem')
@@ -66,3 +67,4 @@ class CategoriesTable
             ->modifyQueryUsing(fn ($query) => $query->with('parent'));
     }
 }
+

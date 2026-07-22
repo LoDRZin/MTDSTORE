@@ -16,6 +16,7 @@ class ProductsTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 ImageColumn::make('image_url')
                     ->label('Imagem')
@@ -74,3 +75,4 @@ class ProductsTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['categories']));
     }
 }
+

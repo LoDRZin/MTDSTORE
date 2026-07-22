@@ -16,6 +16,7 @@ class OrdersTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 TextColumn::make('uuid')
                     ->label('ID do Pedido')
@@ -79,3 +80,4 @@ class OrdersTable
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['customer']));
     }
 }
+

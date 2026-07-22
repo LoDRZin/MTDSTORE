@@ -20,6 +20,7 @@ class CustomersTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')
@@ -110,3 +111,4 @@ class CustomersTable
             ->defaultSort('created_at', 'desc');
     }
 }
+

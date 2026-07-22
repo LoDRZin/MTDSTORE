@@ -55,3 +55,4 @@ class PostsTable
             ->defaultSort('updated_at', 'desc');
     }
 }
+

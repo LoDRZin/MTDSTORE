@@ -15,6 +15,7 @@ class WebhooksTable
     {
         return $table
             ->deferLoading()
+            ->deferFilters()
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome')
@@ -52,3 +53,4 @@ class WebhooksTable
             ]);
     }
 }
+
