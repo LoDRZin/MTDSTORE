@@ -274,8 +274,8 @@ export default function CheckoutPage() {
       applyCoupon(data);
       setCouponInput("");
       setIsCouponOpen(false);
-    } catch (err: any) {
-      setCouponError(err.message || "Cupom inválido");
+    } catch (err: unknown) {
+      setCouponError(err instanceof Error ? err.message : "Cupom inválido");
     } finally {
       setIsApplyingCoupon(false);
     }
