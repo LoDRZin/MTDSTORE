@@ -23,6 +23,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'mtdstore.onrender.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'kbkuipmqoqlackykxqsc.supabase.co',
         pathname: '/**',
       },
