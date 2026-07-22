@@ -22,6 +22,16 @@ class EfiGateway implements PaymentGatewayInterface
         $this->clientId = config('services.efi.client_id');
         $this->clientSecret = config('services.efi.client_secret');
         $this->certPath = config('services.efi.cert_path');
+
+        // Para ambientes PaaS (Render, Vercel), decodificamos a string base64 num arquivo temporário real
+        $certBase64 = config('services.efi.cert_base64');
+        if (!empty($certBase64)) {
+            $tmpPath = sys_get_temp_dir() . '/efi_cert.p12';
+            if (!file_exists($tmpPath)) {
+                file_put_contents($tmpPath, base64_decode($certBase64));
+            }
+            $this->certPath = $tmpPath;
+        }
     }
 
     protected function getAccessToken(): string

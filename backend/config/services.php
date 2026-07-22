@@ -56,7 +56,8 @@ return [
         'url'           => env('EFI_URL', 'https://pix.api.efipay.com.br'),
         'client_id'     => env('EFI_CLIENT_ID', ''),
         'client_secret' => env('EFI_CLIENT_SECRET', ''),
-        'cert_path'     => env('EFI_CERT_PATH', ''),   // Caminho absoluto para o .p12 ou .pem
+        'cert_path'     => env('EFI_CERT_PATH', ''),   // Caminho absoluto para o .p12 ou .pem (Uso local)
+        'cert_base64'   => env('EFI_CERT_BASE64', ''), // Para PaaS (Render/Vercel)
         'pix_key'       => env('EFI_PIX_KEY', ''),     // Chave PIX cadastrada na Efí
         'sandbox'       => env('EFI_SANDBOX', true),
     ],
