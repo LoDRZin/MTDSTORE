@@ -1,0 +1,14 @@
+name: Keep Render App Awake
+
+on:
+  schedule:
+    # Executa a cada 10 minutos
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Permite execução manual se necessário
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render App
+        run: curl -s -o /dev/null -w "%{http_code}" https://mtdstore.onrender.com
