@@ -23,10 +23,12 @@ class ReviewSetting extends Model
 
     public static function current(): self
     {
-        return static::firstOrCreate([], [
-            'enabled' => true,
-            'auto_publish' => false,
-            'suggested_phrases' => [],
-        ]);
+        return \Illuminate\Support\Facades\Cache::rememberForever('review_settings', function () {
+            return static::firstOrCreate([], [
+                'enabled' => true,
+                'auto_publish' => false,
+                'suggested_phrases' => [],
+            ]);
+        });
     }
 }

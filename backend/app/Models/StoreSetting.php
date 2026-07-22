@@ -50,8 +50,10 @@ class StoreSetting extends Model
 
     public static function current(): self
     {
-        return static::firstOrCreate([], [
-            'store_name' => 'MTD STORE',
-        ]);
+        return \Illuminate\Support\Facades\Cache::rememberForever('store_settings', function () {
+            return static::firstOrCreate([], [
+                'store_name' => 'MTD STORE',
+            ]);
+        });
     }
 }

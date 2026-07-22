@@ -205,6 +205,7 @@ class SettingsPage extends Page
         $data = $this->form->getState();
         $setting = StoreSetting::current();
         $setting->update($data);
+        \Illuminate\Support\Facades\Cache::forget('store_settings');
 
         Notification::make()
             ->title('Configurações salvas')

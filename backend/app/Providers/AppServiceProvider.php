@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Travas rígidas de performance (disparam exceções se falharem fora de produção)
+        \Illuminate\Database\Eloquent\Model::preventLazyLoading(!app()->isProduction());
+        \Illuminate\Database\Eloquent\Model::preventAccessingMissingAttributes(!app()->isProduction());
         // Observers
         \App\Models\Product::observe(\App\Observers\ProductObserver::class);
         \App\Models\ProductStockItem::observe(\App\Observers\ProductStockObserver::class);

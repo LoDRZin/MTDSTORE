@@ -21,5 +21,5 @@ class ReviewSettingsPage extends Page implements HasForms
 
     public function mount(): void { $this->form->fill(ReviewSetting::current()->only(['enabled', 'auto_publish', 'suggested_phrases'])); }
     public function form(Schema $schema): Schema { return $schema->components([Toggle::make('enabled')->label('Ativar avaliações'), Toggle::make('auto_publish')->label('Publicar automaticamente'), TagsInput::make('suggested_phrases')->label('Frases sugeridas')])->statePath('data'); }
-    public function save(): void { ReviewSetting::current()->update($this->form->getState()); $this->dispatch('notify', status: 'success', message: 'Configurações salvas.'); }
+    public function save(): void { ReviewSetting::current()->update($this->form->getState()); \Illuminate\Support\Facades\Cache::forget('review_settings'); $this->dispatch('notify', status: 'success', message: 'Configurações salvas.'); }
 }
