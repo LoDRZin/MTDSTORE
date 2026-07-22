@@ -47,7 +47,12 @@ class EfiGateway implements PaymentGatewayInterface
     public function createCharge(Order $order): PaymentIntentDTO
     {
         $token = $this->getAccessToken();
-        $traceId = request()->header('X-Correlation-ID');
+        $traceId = request()->header('X-Correlation-ID') ?? uniqid();
+
+        if (empty($this->certPath) || !file_exists($this->certPath)) {
+            Log::error("Certificado da EFI não encontrado em: {$this->certPath}");
+            throw new \Exception("Certificado mTLS da Efí não encontrado. Verifique EFI_CERT_PATH.");
+        }
 
         $response = Http::withToken($token)
             ->withHeaders(['X-Correlation-ID' => $traceId])
@@ -62,18 +67,36 @@ class EfiGateway implements PaymentGatewayInterface
             ]);
 
         if (!$response->successful()) {
+            Log::error('Erro ao criar cobrança EFI: ' . $response->body());
             throw new \Exception("Falha ao criar cobrança EFI.");
         }
 
         $data = $response->json();
         
-        // Em um fluxo real de PIX, também precisaríamos gerar o QR Code (endpoint /v2/loc/{id}/qrcode)
-        // Aqui assumimos que o loc.id ou txid foi retornado
+        $locId = $data['loc']['id'] ?? null;
+        $txid = $data['txid'] ?? null;
+
+        if (!$locId) {
+            throw new \Exception("Efí não retornou o Location ID.");
+        }
+
+        // Buscar QR Code payload (Copia e Cola)
+        $qrResponse = Http::withToken($token)
+            ->withHeaders(['X-Correlation-ID' => $traceId])
+            ->withOptions(['cert' => $this->certPath])
+            ->get("{$this->baseUrl}/v2/loc/{$locId}/qrcode");
+
+        if (!$qrResponse->successful()) {
+            Log::error('Erro ao gerar QR Code EFI: ' . $qrResponse->body());
+            throw new \Exception("Falha ao gerar QR Code na EFI.");
+        }
+
+        $qrData = $qrResponse->json();
 
         return new PaymentIntentDTO(
-            externalReference: $data['txid'],
-            checkoutUrl: null,
-            qrCode: $data['location'] ?? null, // Simplificado
+            externalReference: $txid,
+            checkoutUrl: null, // EFI PIX não tem checkout URL, é direto QR
+            qrCode: $qrData['qrcode'] ?? null, // O "Copia e Cola" real
             gatewayName: 'efi'
         );
     }
