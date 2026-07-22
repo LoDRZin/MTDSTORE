@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // Observers
         \App\Models\Product::observe(\App\Observers\ProductObserver::class);
         \App\Models\ProductStockItem::observe(\App\Observers\ProductStockObserver::class);
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
 
         // Rate Limiters
         RateLimiter::for('checkout', function (Request $request) {

@@ -14,18 +14,29 @@ class TopCustomersWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
+        $topIds = \Illuminate\Support\Facades\Cache::remember('admin_top_customers', 3600, function () {
+            return User::query()
+                ->withSum(['orders' => function($q) {
+                    $q->whereIn('status', ['paid', 'partially_refunded']);
+                }], 'total')
+                ->having('orders_sum_total', '>', 0)
+                ->orderByDesc('orders_sum_total')
+                ->limit(5)
+                ->pluck('id')
+                ->toArray();
+        });
+
         return $table
             ->query(
                 User::query()
+                    ->whereIn('id', $topIds)
                     ->withSum(['orders' => function($q) {
                         $q->whereIn('status', ['paid', 'partially_refunded']);
                     }], 'total')
                     ->withCount(['orders' => function($q) {
                         $q->whereIn('status', ['paid', 'partially_refunded']);
                     }])
-                    ->having('orders_sum_total', '>', 0)
                     ->orderByDesc('orders_sum_total')
-                    ->limit(5)
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')

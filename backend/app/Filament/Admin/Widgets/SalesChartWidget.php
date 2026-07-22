@@ -22,7 +22,7 @@ class SalesChartWidget extends ChartWidget
     {
         $period = $this->filters['period'] ?? '30_days';
 
-        return Cache::remember("admin_dashboard_chart_{$period}", now()->addMinutes(5), function () use ($period) {
+        return Cache::remember("admin_dashboard_chart_{$period}", now()->addHour(), function () use ($period) {
             $query = Order::where('status', 'paid');
             $days = 30;
 
