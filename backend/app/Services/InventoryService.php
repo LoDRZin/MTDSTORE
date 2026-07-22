@@ -97,9 +97,15 @@ class InventoryService
      */
     public function getAvailableCount(int $productId, ?int $variantId = null): int
     {
+        // Memory cache para evitar query N+1 no ProductResource
+        static $productTypes = [];
+        if (!array_key_exists($productId, $productTypes)) {
+            $product = Product::find($productId);
+            $productTypes[$productId] = $product ? $product->delivery_type : null;
+        }
+
         // Se o produto for de download, o estoque é infinito
-        $product = Product::find($productId);
-        if ($product && $product->delivery_type === 'file_download') {
+        if ($productTypes[$productId] === 'file_download') {
             return PHP_INT_MAX;
         }
 

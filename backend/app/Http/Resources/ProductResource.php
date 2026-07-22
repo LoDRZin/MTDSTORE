@@ -17,7 +17,9 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         $inventoryService = app(InventoryService::class);
-        $availableCount = $inventoryService->getAvailableCount($this->id);
+        $availableCount = $this->delivery_type === 'file_download' 
+            ? PHP_INT_MAX 
+            : $inventoryService->getAvailableCount($this->id);
 
         $displayPrice = (float) $this->price;
         if ($this->relationLoaded('variants') && $this->variants->isNotEmpty()) {
