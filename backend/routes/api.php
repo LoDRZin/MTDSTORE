@@ -75,4 +75,13 @@ Route::post('/webhooks/{gateway}', [\App\Http\Controllers\Api\WebhookController:
     
         return response()->json(['status' => 'ok', 'seconds_since_last_beat' => $secondsSinceLastBeat]);
     });
+
+    // Rota ultra-leve para health check e keep-alive
+    Route::get('/health', function () {
+        return response()->json([
+            'status' => 'ok',
+            'timestamp' => now()->toIso8601String(),
+            'uptime' => defined('LARAVEL_START') ? microtime(true) - LARAVEL_START : 0,
+        ]);
+    })->name('health');
 });
