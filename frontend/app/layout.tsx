@@ -10,6 +10,7 @@ const AmbientGlow = dynamic(() => import("@/components/ui/AmbientGlow"), { ssr: 
 const GridBackground = dynamic(() => import("@/components/ui/GridBackground"), { ssr: false });
 const CustomCursor = dynamic(() => import("@/components/ui/CustomCursor"), { ssr: false });
 const AuthModal = dynamic(() => import("@/components/auth/AuthModal"), { ssr: false });
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -81,6 +82,7 @@ export default function RootLayout({
           <main className="flex-1 pt-[90px]">{children}</main>
           <Footer />
         </div>
+        <PerformanceMonitor />
       </body>
     </html>
   );
