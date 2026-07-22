@@ -22,7 +22,7 @@ class DispatchWebhookJob implements ShouldQueue
 
     public function handle(): void
     {
-        $webhooks = Webhook::where('active', true)
+        $webhooks = Webhook::where('active', \Illuminate\Support\Facades\DB::raw('true'))
             ->whereJsonContains('events', $this->event)
             ->get();
 
