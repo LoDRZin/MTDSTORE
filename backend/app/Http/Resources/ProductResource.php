@@ -16,10 +16,10 @@ class ProductResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $inventoryService = app(InventoryService::class);
-        $availableCount = $this->delivery_type === 'file_download' 
-            ? PHP_INT_MAX 
-            : $inventoryService->getAvailableCount($this->id);
+        $inventoryService = app(\App\Services\InventoryService::class);
+        // Usa o count carregado pela query ou tenta buscar via service como fallback
+        $baseStock = isset($this->available_count) ? $this->available_count : $inventoryService->getAvailableCount($this->id);
+        $availableCount = $this->delivery_type === 'file_download' ? PHP_INT_MAX : $baseStock;
 
         $displayPrice = (float) $this->price;
         if ($this->relationLoaded('variants') && $this->variants->isNotEmpty()) {
@@ -47,7 +47,7 @@ class ProductResource extends JsonResource
             ),
             'variants'        => $this->whenLoaded('variants', fn () =>
                 $this->variants->map(function ($v) use ($inventoryService) {
-                    $variantStock = $inventoryService->getAvailableCount($this->id, $v->id);
+                    $variantStock = isset($v->available_count) ? $v->available_count : $inventoryService->getAvailableCount($this->id, $v->id);
                     return [
                         'id'              => $v->id,
                         'name'            => $v->name,

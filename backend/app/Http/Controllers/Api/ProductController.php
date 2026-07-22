@@ -33,7 +33,16 @@ class ProductController extends Controller
 
         $perPage = min((int) $request->input('per_page', 12), 48);
 
-        $query = Product::active()->with(['categories:id,name,slug', 'variants']);
+        $query = Product::active()
+            ->with(['categories:id,name,slug'])
+            ->with(['variants' => function ($q) {
+                $q->withCount(['stockItems as available_count' => function ($stockQuery) {
+                    $stockQuery->where('status', 'available');
+                }]);
+            }])
+            ->withCount(['stockItems as available_count' => function ($q) {
+                $q->where('status', 'available')->whereNull('variant_id');
+            }]);
 
         // Full-text search on name (case-insensitive para Postgres)
         if ($search = $request->input('search')) {
