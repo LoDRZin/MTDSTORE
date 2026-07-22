@@ -21,8 +21,13 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Config;
 
-class SettingsPage extends Page
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+
+class SettingsPage extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-cog-8-tooth';
