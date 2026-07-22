@@ -29,64 +29,69 @@ class ProductController extends Controller
             'max_price' => ['sometimes', 'numeric', 'min:0'],
             'in_stock'  => ['sometimes', 'boolean'],
             'per_page'  => ['sometimes', 'integer', 'min:1', 'max:48'],
+            'page'      => ['sometimes', 'integer', 'min:1'],
         ]);
 
-        $perPage = min((int) $request->input('per_page', 12), 48);
+        $cacheKey = 'api.products.index.' . md5(json_encode($request->all()));
 
-        $query = Product::active()
-            ->with(['categories:id,name,slug'])
-            ->with(['variants' => function ($q) {
-                $q->withCount(['stockItems as available_count' => function ($stockQuery) {
-                    $stockQuery->where('status', 'available');
+        $products = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function () use ($request) {
+            $perPage = min((int) $request->input('per_page', 12), 48);
+
+            $query = Product::active()
+                ->with(['categories:id,name,slug'])
+                ->with(['variants' => function ($q) {
+                    $q->withCount(['stockItems as available_count' => function ($stockQuery) {
+                        $stockQuery->where('status', 'available');
+                    }]);
+                }])
+                ->withCount(['stockItems as available_count' => function ($q) {
+                    $q->where('status', 'available')->whereNull('variant_id');
                 }]);
-            }])
-            ->withCount(['stockItems as available_count' => function ($q) {
-                $q->where('status', 'available')->whereNull('variant_id');
-            }]);
 
-        // Full-text search on name (case-insensitive para Postgres)
-        if ($search = $request->input('search')) {
-            $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-        }
+            if ($search = $request->input('search')) {
+                $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
+            }
 
-        // Filter by category slug
-        if ($category = $request->input('category')) {
-            $query->byCategory($category);
-        }
+            if ($category = $request->input('category')) {
+                $query->byCategory($category);
+            }
 
-        // Price range filters
-        if ($minPrice = $request->input('min_price')) {
-            $query->minPrice((float) $minPrice);
-        }
+            if ($minPrice = $request->input('min_price')) {
+                $query->minPrice((float) $minPrice);
+            }
 
-        if ($maxPrice = $request->input('max_price')) {
-            $query->maxPrice((float) $maxPrice);
-        }
+            if ($maxPrice = $request->input('max_price')) {
+                $query->maxPrice((float) $maxPrice);
+            }
 
-        // In-stock filter
-        if ($request->boolean('in_stock')) {
-            $query->inStock();
-        }
+            if ($request->boolean('in_stock')) {
+                $query->inStock();
+            }
 
-        $products = $query->latest()->paginate($perPage);
+            return $query->latest()->paginate($perPage);
+        });
 
         return ProductResource::collection($products);
     }
 
     public function show(string $slug)
     {
-        $product = Product::active()
-            ->with(['categories:id,name,slug'])
-            ->with(['variants' => function ($q) {
-                $q->withCount(['stockItems as available_count' => function ($stockQuery) {
-                    $stockQuery->where('status', 'available');
-                }]);
-            }])
-            ->withCount(['stockItems as available_count' => function ($q) {
-                $q->where('status', 'available')->whereNull('variant_id');
-            }])
-            ->where('slug', $slug)
-            ->firstOrFail();
+        $cacheKey = 'api.products.show.' . $slug;
+
+        $product = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60, function () use ($slug) {
+            return Product::active()
+                ->with(['categories:id,name,slug'])
+                ->with(['variants' => function ($q) {
+                    $q->withCount(['stockItems as available_count' => function ($stockQuery) {
+                        $stockQuery->where('status', 'available');
+                    }]);
+                }])
+                ->withCount(['stockItems as available_count' => function ($q) {
+                    $q->where('status', 'available')->whereNull('variant_id');
+                }])
+                ->where('slug', $slug)
+                ->firstOrFail();
+        });
 
         return new ProductResource($product);
     }
