@@ -76,7 +76,15 @@ class ProductController extends Controller
     public function show(string $slug)
     {
         $product = Product::active()
-            ->with(['categories:id,name,slug', 'variants'])
+            ->with(['categories:id,name,slug'])
+            ->with(['variants' => function ($q) {
+                $q->withCount(['stockItems as available_count' => function ($stockQuery) {
+                    $stockQuery->where('status', 'available');
+                }]);
+            }])
+            ->withCount(['stockItems as available_count' => function ($q) {
+                $q->where('status', 'available')->whereNull('variant_id');
+            }])
             ->where('slug', $slug)
             ->firstOrFail();
 
