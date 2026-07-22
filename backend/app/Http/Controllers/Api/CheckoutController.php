@@ -64,7 +64,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'error' => [
                     'code'     => $isDatabaseError ? 'INTERNAL_SERVER_ERROR' : 'UNPROCESSABLE_ENTITY',
-                    'message'  => $isDatabaseError ? 'Ocorreu um erro interno ao processar seu pedido. Tente novamente mais tarde.' : $e->getMessage(),
+                    'message'  => "DEBUG_ERROR: " . $e->getMessage() . " IN " . $e->getFile() . ":" . $e->getLine(),
                     'trace_id' => request()->header('X-Correlation-ID', uniqid()),
                     'details'  => [],
                 ],
