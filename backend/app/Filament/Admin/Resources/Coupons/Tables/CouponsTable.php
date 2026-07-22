@@ -14,6 +14,7 @@ class CouponsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->deferLoading()
             ->columns([
                 TextColumn::make('code')
                     ->label('Código')

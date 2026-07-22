@@ -27,7 +27,7 @@ async function getProducts(searchParams: { [key: string]: string | string[] | un
       apiUrl = "https://mtdstore.onrender.com/api/v1";
     }
     const res = await fetch(`${apiUrl}/products?${params.toString()}`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (!res.ok) {
       const errText = await res.text();
@@ -49,7 +49,7 @@ async function getCategories() {
       apiUrl = "https://mtdstore.onrender.com/api/v1";
     }
     const res = await fetch(`${apiUrl}/categories`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
     });
     if (!res.ok) {
       const errText = await res.text();
