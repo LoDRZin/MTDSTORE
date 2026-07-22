@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Coupons\Schemas;
 
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
