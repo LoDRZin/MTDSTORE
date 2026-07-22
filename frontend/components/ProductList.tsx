@@ -70,13 +70,6 @@ export default function ProductList({ initialProducts, categories, meta }: Produ
     return () => clearTimeout(timer);
   }, [search, pathname, router, searchParams, searchParam]);
 
-  const selectCategory = (slug: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("category", slug);
-    params.delete("page"); // Reset page when changing category
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
   const clearCategory = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("category");
