@@ -121,6 +121,15 @@ class ProcessPaymentWebhook implements ShouldQueue
                 }
             } elseif ($this->eventDto->status === 'failed') {
                 $order->update(['status' => 'failed']);
+            } elseif (in_array($this->eventDto->status, ['refunded', 'chargeback'])) {
+                if ($order->status !== $this->eventDto->status) {
+                    $order->update(['status' => $this->eventDto->status]);
+                    
+                    // Invalida permanentemente as chaves que estavam atreladas a este pedido
+                    $orderItemIds = $order->items()->pluck('id');
+                    \App\Models\ProductStockItem::whereIn('order_item_id', $orderItemIds)
+                        ->update(['status' => 'revoked']);
+                }
             }
 
             WebhookEvent::create([

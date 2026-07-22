@@ -122,22 +122,57 @@ class SettingsPage extends Page
                         Tab::make('Pagamentos')
                             ->icon('heroicon-o-credit-card')
                             ->schema([
-                                Section::make('Gateways de Pagamento')
-                                    ->description('Status dos gateways configurados no sistema. Para alterar as credenciais, atualize o arquivo .env do backend.')
+                                Section::make('MercadoPago (PIX e Cartão)')
                                     ->schema([
-                                        Placeholder::make('stripe_status')
-                                            ->label('Stripe')
-                                            ->content(config('services.stripe.secret') ? '✅ Configurado' : '❌ Não configurado'),
-                                        Placeholder::make('pix_status')
-                                            ->label('MercadoPago (PIX)')
-                                            ->content(config('services.mercadopago.access_token') ? '✅ Configurado' : '❌ Não configurado'),
-                                        Placeholder::make('efi_status')
-                                            ->label('Efí (PIX)')
-                                            ->content(config('services.efi.client_id') ? '✅ Configurado' : '❌ Não configurado'),
-                                        Placeholder::make('oxapay_status')
-                                            ->label('OxaPay (Crypto)')
-                                            ->content(config('services.oxapay.merchant_key') ? '✅ Configurado' : '❌ Não configurado'),
-                                    ])->columns(2),
+                                        Toggle::make('mercadopago_active')
+                                            ->label('Ativar MercadoPago'),
+                                        TextInput::make('mercadopago_access_token')
+                                            ->label('Access Token')
+                                            ->password()
+                                            ->revealable(),
+                                        TextInput::make('mercadopago_webhook_secret')
+                                            ->label('Webhook Secret')
+                                            ->password()
+                                            ->revealable(),
+                                    ])->columns(2)->collapsible(),
+
+                                Section::make('Stripe (Cartão)')
+                                    ->schema([
+                                        Toggle::make('stripe_active')
+                                            ->label('Ativar Stripe'),
+                                        TextInput::make('stripe_secret')
+                                            ->label('Secret Key')
+                                            ->password()
+                                            ->revealable(),
+                                        TextInput::make('stripe_webhook_secret')
+                                            ->label('Webhook Secret')
+                                            ->password()
+                                            ->revealable(),
+                                    ])->columns(2)->collapsible(),
+
+                                Section::make('Efí (PIX)')
+                                    ->schema([
+                                        Toggle::make('efi_active')
+                                            ->label('Ativar Efí'),
+                                        TextInput::make('efi_client_id')
+                                            ->label('Client ID')
+                                            ->password()
+                                            ->revealable(),
+                                        TextInput::make('efi_client_secret')
+                                            ->label('Client Secret')
+                                            ->password()
+                                            ->revealable(),
+                                    ])->columns(2)->collapsible(),
+
+                                Section::make('OxaPay (Crypto)')
+                                    ->schema([
+                                        Toggle::make('oxapay_active')
+                                            ->label('Ativar OxaPay'),
+                                        TextInput::make('oxapay_merchant_key')
+                                            ->label('Merchant Key')
+                                            ->password()
+                                            ->revealable(),
+                                    ])->columns(2)->collapsible(),
                             ]),
                         Tab::make('Tema')
                             ->icon('heroicon-o-paint-brush')

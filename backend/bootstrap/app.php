@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             \App\Http\Middleware\CorrelationId::class,
         ]);
+        $middleware->alias([
+            'check.banned' => \App\Http\Middleware\CheckAccountBanned::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\App\Exceptions\OutOfStockException $e, \Illuminate\Http\Request $request) {

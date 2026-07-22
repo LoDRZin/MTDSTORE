@@ -19,12 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/sync', [\App\Http\Controllers\Api\AuthController::class, 'cartSync']);
     Route::get('/cart/load', [\App\Http\Controllers\Api\AuthController::class, 'cartLoad']);
 
-    // Afiliados
-    Route::prefix('affiliate')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Api\AffiliateController::class, 'dashboard']);
-        Route::get('/withdrawals', [\App\Http\Controllers\Api\AffiliateController::class, 'withdrawals']);
-        Route::post('/withdrawals', [\App\Http\Controllers\Api\AffiliateController::class, 'requestWithdrawal']);
-    });
 });
 
 // Rotas Públicas da Loja

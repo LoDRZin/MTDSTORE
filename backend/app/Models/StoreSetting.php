@@ -23,6 +23,10 @@ class StoreSetting extends Model
         'favicon_path',
         'primary_color',
         'secondary_color',
+        'stripe_active', 'stripe_secret', 'stripe_webhook_secret',
+        'mercadopago_active', 'mercadopago_access_token', 'mercadopago_webhook_secret',
+        'efi_active', 'efi_client_id', 'efi_client_secret',
+        'oxapay_active', 'oxapay_merchant_key',
     ];
 
     protected $casts = [
@@ -31,6 +35,17 @@ class StoreSetting extends Model
         'show_business_hours' => 'boolean',
         'social_links' => 'array',
         'business_hours' => 'array',
+        'stripe_active' => 'boolean',
+        'mercadopago_active' => 'boolean',
+        'efi_active' => 'boolean',
+        'oxapay_active' => 'boolean',
+        'stripe_secret' => 'encrypted',
+        'stripe_webhook_secret' => 'encrypted',
+        'mercadopago_access_token' => 'encrypted',
+        'mercadopago_webhook_secret' => 'encrypted',
+        'efi_client_id' => 'encrypted',
+        'efi_client_secret' => 'encrypted',
+        'oxapay_merchant_key' => 'encrypted',
     ];
 
     public static function current(): self

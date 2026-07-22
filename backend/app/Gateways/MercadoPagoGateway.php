@@ -97,6 +97,10 @@ class MercadoPagoGateway implements PaymentGatewayInterface
                     $status = 'paid';
                 } elseif (in_array($mpStatus, ['rejected', 'cancelled'])) {
                     $status = 'failed';
+                } elseif ($mpStatus === 'refunded') {
+                    $status = 'refunded';
+                } elseif ($mpStatus === 'charged_back') {
+                    $status = 'chargeback';
                 }
 
                 // external_reference é o UUID do nosso pedido

@@ -83,6 +83,14 @@ class StripeGateway implements PaymentGatewayInterface
             // Em caso do webhook alternativo ser disparado
             $status = 'paid';
             $orderUuid = $intent['metadata']['order_uuid'] ?? '';
+        } elseif ($type === 'charge.refunded') {
+            $status = 'refunded';
+            // Para charge, o uuid geralmente está no payment_intent (precisamos buscar o order)
+            // ou metadata se foi copiado. Stripe transfere metadata da session para intent/charge
+            $orderUuid = $intent['metadata']['order_uuid'] ?? '';
+        } elseif ($type === 'charge.dispute.created') {
+            $status = 'chargeback';
+            $orderUuid = $intent['metadata']['order_uuid'] ?? '';
         }
 
         return new WebhookEventDTO(

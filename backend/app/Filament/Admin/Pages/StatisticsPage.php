@@ -44,26 +44,12 @@ class StatisticsPage extends Page
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->action(function () {
-                    return response()->streamDownload(function () {
-                        $file = fopen('php://output', 'w');
-                        // Cabeçalhos do CSV
-                        fputcsv($file, ['ID', 'Cliente', 'E-mail', 'Valor (R$)', 'Status', 'Gateway', 'Data']);
-
-                        Order::query()->with('customer')->chunk(500, function ($orders) use ($file) {
-                            foreach ($orders as $order) {
-                                fputcsv($file, [
-                                    $order->id,
-                                    $order->customer?->name ?? 'Anônimo',
-                                    $order->customer?->email ?? 'N/A',
-                                    number_format($order->total, 2, ',', ''),
-                                    $order->status,
-                                    $order->gateway ?? 'N/A',
-                                    $order->created_at->format('Y-m-d H:i:s'),
-                                ]);
-                            }
-                        });
-                        fclose($file);
-                    }, 'pedidos_' . date('Y-m-d_H-i-s') . '.csv');
+                    \App\Jobs\ExportOrdersJob::dispatch(auth()->id());
+                    \Filament\Notifications\Notification::make()
+                        ->title('Exportação Iniciada')
+                        ->body('Você receberá uma notificação quando o arquivo estiver pronto.')
+                        ->info()
+                        ->send();
                 }),
         ];
     }

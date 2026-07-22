@@ -37,10 +37,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Visit::class, 'customer_id');
     }
 
-    public function affiliate()
-    {
-        return $this->hasOne(Affiliate::class);
-    }
 
     public function isBanned(): bool
     {

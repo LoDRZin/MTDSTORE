@@ -33,12 +33,18 @@ class ReviewResource extends Resource
         ])->filters([
             \Filament\Tables\Filters\SelectFilter::make('status')->options(['private' => 'Privadas', 'published' => 'Publicadas']),
         ])->actions([
-            \Filament\Actions\Action::make('publish')->label('Publicar')->color('success')
+            \Filament\Tables\Actions\Action::make('publish')->label('Publicar')->color('success')
                 ->visible(fn (Review $record) => $record->status !== 'published')
-                ->action(fn (Review $record) => $record->update(['status' => 'published'])),
-            \Filament\Actions\Action::make('hide')->label('Tornar privada')->color('gray')
+                ->action(function (Review $record) {
+                    abort_unless($record->status !== 'published', 403, 'Avaliação já está publicada.');
+                    $record->update(['status' => 'published']);
+                }),
+            \Filament\Tables\Actions\Action::make('hide')->label('Tornar privada')->color('gray')
                 ->visible(fn (Review $record) => $record->status !== 'private')
-                ->action(fn (Review $record) => $record->update(['status' => 'private'])),
+                ->action(function (Review $record) {
+                    abort_unless($record->status !== 'private', 403, 'Avaliação já está privada.');
+                    $record->update(['status' => 'private']);
+                }),
         ])->modifyQueryUsing(fn ($query) => $query->with(['product:id,name', 'customer:id,email']));
     }
 
