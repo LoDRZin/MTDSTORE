@@ -223,6 +223,26 @@ function WiseModal({ data, orderId, onClose }: { data: WiseData; orderId: string
   );
 }
 
+function CheckoutSkeleton() {
+  return (
+    <SectionContainer className="container mx-auto px-4 py-16">
+      <div className="flex items-center gap-3 mb-10">
+        <div className="w-8 h-8 rounded-full bg-white/5 animate-pulse" />
+        <div className="w-48 h-8 rounded-lg bg-white/5 animate-pulse" />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="lg:col-span-7 flex flex-col gap-8">
+          <div className="glass-panel p-8 rounded-3xl h-48 animate-pulse bg-white/5" />
+          <div className="glass-panel p-8 rounded-3xl h-96 animate-pulse bg-white/5" />
+        </div>
+        <div className="lg:col-span-5 sticky top-32">
+          <div className="glass-panel p-8 rounded-3xl shadow-2xl h-80 animate-pulse bg-white/5" />
+        </div>
+      </div>
+    </SectionContainer>
+  );
+}
+
 // ─── Página Principal ──────────────────────────────────────────────────────────
 
 export default function CheckoutPage() {
@@ -250,7 +270,7 @@ export default function CheckoutPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted) return <CheckoutSkeleton />;
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const total = Math.max(0, subtotal - (coupon?.discount || 0));
@@ -418,6 +438,7 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <form onSubmit={handleSubmit} className="lg:col-span-7 flex flex-col gap-8">
+            <fieldset disabled={loading} className="flex flex-col gap-8 disabled:opacity-60 disabled:pointer-events-none transition-all duration-300">
             
             {/* E-mail de entrega */}
             <div className="glass-panel p-8 rounded-3xl">
@@ -532,6 +553,7 @@ export default function CheckoutPage() {
                 <span>Transação 100% segura e criptografada</span>
               </div>
             </div>
+            </fieldset>
           </form>
 
           {/* Resumo do Pedido */}
@@ -617,24 +639,26 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              <div className="flex flex-col gap-2 mt-6 pt-6 border-t border-white/10">
-                <div className="flex justify-between items-center text-text-secondary font-medium">
-                  <span>Subtotal</span>
-                  <span>R$ {subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                </div>
-                {coupon && (
-                  <div className="flex justify-between items-center text-green-400 font-medium">
-                    <span>Desconto ({coupon.code})</span>
-                    <span>- R$ {coupon.discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+              <AnimatePresence mode="popLayout">
+                <motion.div layout className="flex flex-col gap-2 mt-6 pt-6 border-t border-white/10">
+                  <div className="flex justify-between items-center text-text-secondary font-medium">
+                    <span>Subtotal</span>
+                    <span>R$ {subtotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                   </div>
-                )}
-                <div className="flex justify-between items-center mt-2 text-xl font-bold">
-                  <span>Total</span>
-                  <span className="text-brand-400 text-3xl">
-                    R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
+                  {coupon && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex justify-between items-center text-green-400 font-medium">
+                      <span>Desconto ({coupon.code})</span>
+                      <span>- R$ {coupon.discount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    </motion.div>
+                  )}
+                  <div className="flex justify-between items-center mt-2 text-xl font-bold">
+                    <span>Total</span>
+                    <span className="text-brand-400 text-3xl">
+                      R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
 
               {/* Logos dos gateways aceitos */}
               <div className="mt-6 pt-6 border-t border-white/5">
