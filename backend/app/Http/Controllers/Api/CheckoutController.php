@@ -22,18 +22,9 @@ class CheckoutController extends Controller
         ]);
 
         try {
-            // 1. Encontra ou cria o usuário pelo e-mail
-            $user = \App\Models\User::firstOrCreate(
-                ['email' => $request->email],
-                [
-                    'name'     => 'Cliente',
-                    'password' => bcrypt(\Illuminate\Support\Str::random(24)),
-                ]
-            );
-
-            // 2. Cria o pedido no banco (status: pending)
+            // 1. Cria o pedido no banco (status: pending)
             $order = $this->checkoutService->process(
-                $user,
+                $request->email,
                 $request->items,
                 $request->coupon_code,
                 $request->gateway
@@ -64,7 +55,7 @@ class CheckoutController extends Controller
             return response()->json([
                 'error' => [
                     'code'     => $isDatabaseError ? 'INTERNAL_SERVER_ERROR' : 'UNPROCESSABLE_ENTITY',
-                    'message'  => "DEBUG_ERROR: " . $e->getMessage() . " IN " . $e->getFile() . ":" . $e->getLine(),
+                    'message'  => $isDatabaseError ? 'Ocorreu um erro interno no servidor.' : $e->getMessage(),
                     'trace_id' => request()->header('X-Correlation-ID', uniqid()),
                     'details'  => [],
                 ],

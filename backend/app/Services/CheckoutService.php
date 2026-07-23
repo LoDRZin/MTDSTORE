@@ -22,16 +22,24 @@ class CheckoutService
     /**
      * Process checkout for a customer.
      *
-     * @param User $customer
+     * @param string $customerEmail
      * @param array $cartItems [['product_id' => 1, 'quantity' => 2]]
      * @param string|null $couponCode
      * @param string $gateway
      * @return Order
      * @throws Exception
      */
-    public function process(User $customer, array $cartItems, ?string $couponCode, string $gateway): Order
+    public function process(string $customerEmail, array $cartItems, ?string $couponCode, string $gateway): Order
     {
-        return DB::transaction(function () use ($customer, $cartItems, $couponCode, $gateway) {
+        return DB::transaction(function () use ($customerEmail, $cartItems, $couponCode, $gateway) {
+            // 0. Encontra ou cria o usuário
+            $customer = User::firstOrCreate(
+                ['email' => $customerEmail],
+                [
+                    'name'     => 'Cliente',
+                    'password' => bcrypt(Str::random(24)),
+                ]
+            );
             // 1. Calcular total e validar
             $cartTotalDto = $this->cartService->calculateTotal($cartItems, $couponCode, $customer->id, $gateway);
 

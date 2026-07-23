@@ -31,6 +31,16 @@ const nextConfig = {
         hostname: 'kbkuipmqoqlackykxqsc.supabase.co',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'mtdstore.xyz',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.mtdstore.xyz',
+        pathname: '/**',
+      },
     ],
   },
 };

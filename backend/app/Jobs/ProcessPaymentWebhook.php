@@ -25,17 +25,17 @@ class ProcessPaymentWebhook implements ShouldQueue
 
     public function handle(CheckoutService $checkoutService): void
     {
-        // 1. Idempotency Check
-        $exists = WebhookEvent::where('gateway', $this->eventDto->gatewayName)
-            ->where('external_event_id', $this->eventDto->externalEventId)
-            ->exists();
-
-        if ($exists) {
-            Log::info("Webhook idempotency: Event {$this->eventDto->externalEventId} already processed.");
-            return;
-        }
-
         DB::transaction(function () use ($checkoutService) {
+            // 1. Idempotency Check (Dentro da transação para evitar Race Conditions)
+            $exists = WebhookEvent::where('gateway', $this->eventDto->gatewayName)
+                ->where('external_event_id', $this->eventDto->externalEventId)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($exists) {
+                Log::info("Webhook idempotency: Event {$this->eventDto->externalEventId} already processed.");
+                return;
+            }
             $order = Order::where('uuid', $this->eventDto->orderUuid)->lockForUpdate()->first();
 
             if (!$order) {

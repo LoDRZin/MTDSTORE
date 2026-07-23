@@ -100,7 +100,6 @@ function PixModal({ qrCode, orderId, onClose }: { qrCode: string; orderId: strin
   const { clearCart } = useCartStore();
 
   const handleDone = () => {
-    clearCart();
     router.push(`/pedido/${orderId}/sucesso`);
   };
 
@@ -160,7 +159,6 @@ function WiseModal({ data, orderId, onClose }: { data: WiseData; orderId: string
   const { clearCart } = useCartStore();
 
   const handleDone = () => {
-    clearCart();
     router.push(`/pedido/${orderId}/sucesso`);
   };
 

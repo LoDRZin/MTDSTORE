@@ -56,6 +56,7 @@ class OrderObserver
         $periods = ['today', '7_days', '30_days', '90_days', 'all_time'];
         foreach ($periods as $period) {
             \Illuminate\Support\Facades\Cache::forget("admin_dashboard_chart_{$period}");
+            \Illuminate\Support\Facades\Cache::forget("admin_dashboard_kpis_{$period}");
         }
         
         \Illuminate\Support\Facades\Cache::forget('admin_top_customers');

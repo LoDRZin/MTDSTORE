@@ -78,6 +78,7 @@ export async function generateMetadata(
       title: product.name,
       description: product.description,
       type: 'website',
+      ...(product.image_url && { images: [product.image_url] }),
     },
   };
 }
