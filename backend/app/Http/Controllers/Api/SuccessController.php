@@ -17,7 +17,7 @@ class SuccessController extends Controller
             ->with(['items.product', 'items.variant', 'items.stockItem'])
             ->firstOrFail();
 
-        abort_unless($order->status === 'paid', 403, 'O pedido ainda nÃ£o estÃ¡ liberado.');
+        abort_unless($order->status === 'paid', 403, 'O pedido ainda não está liberado.');
 
         return response()->json([
             'order' => $order->uuid,
@@ -47,7 +47,7 @@ class SuccessController extends Controller
     public function download(string $order, int $item): StreamedResponse
     {
         $order = Order::where('uuid', $order)->firstOrFail();
-        abort_unless($order->status === 'paid', 403, 'O pedido ainda nÃ£o estÃ¡ liberado.');
+        abort_unless($order->status === 'paid', 403, 'O pedido ainda não está liberado.');
 
         $item = OrderItem::query()
             ->with('product:id,name,delivery_type,file_path')
@@ -59,11 +59,11 @@ class SuccessController extends Controller
         abort_unless(
             $product->delivery_type === 'file_download' && filled($product->file_path),
             404,
-            'Arquivo de entrega indisponÃ­vel.'
+            'Arquivo de entrega indisponível.'
         );
 
         $disk = Storage::disk(config('filesystems.default'));
-        abort_unless($disk->exists($product->file_path), 404, 'Arquivo de entrega indisponÃ­vel.');
+        abort_unless($disk->exists($product->file_path), 404, 'Arquivo de entrega indisponível.');
 
         return $disk->download($product->file_path, basename($product->file_path));
     }

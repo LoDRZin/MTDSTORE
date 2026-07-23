@@ -20,7 +20,7 @@ class PostForm
                 ->schema([
                     Grid::make(2)->schema([
                         TextInput::make('title')
-                            ->label('TÃ­tulo')
+                            ->label('Título')
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)

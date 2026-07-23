@@ -11,7 +11,7 @@ class CategorizeProducts extends Command
 {
     protected $signature = 'data:categorize-products';
 
-    protected $description = 'Categoriza produtos a partir do nome e da descriÃ§Ã£o.';
+    protected $description = 'Categoriza produtos a partir do nome e da descrição.';
 
     public function handle(): int
     {
@@ -19,9 +19,9 @@ class CategorizeProducts extends Command
         $keywords = [
             'spoofer' => ['spoofer', 'hwid', 'bypass', 'unban'],
             'internal' => ['internal', 'injetor', 'injected', 'dll'],
-            'external' => ['external', 'overlay', 'diÃ¡rio', 'mensal'],
+            'external' => ['external', 'overlay', 'diário', 'mensal'],
             'fivem' => ['fivem', 'gta', 'cidade', 'rp'],
-            'contas' => ['conta', 'account', 'netflix', 'spotify', 'serviÃ§o', 'assinatura', 'premium', 'discord', 'nitro'],
+            'contas' => ['conta', 'account', 'netflix', 'spotify', 'serviço', 'assinatura', 'premium', 'discord', 'nitro'],
             'outros' => ['outro', 'miscellaneous', 'diversos', 'key'],
             'cheat' => ['cheat', 'hack', 'mod menu', 'aimbot', 'esp'],
         ];
@@ -69,7 +69,7 @@ class CategorizeProducts extends Command
         });
 
         Cache::forget('categories.tree');
-        $this->info("ConcluÃ­do: {$count} produtos categorizados.");
+        $this->info("Concluído: {$count} produtos categorizados.");
 
         return self::SUCCESS;
     }

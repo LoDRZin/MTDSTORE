@@ -41,15 +41,15 @@ class Coupon extends Model
             $coupon->code = strtoupper(trim((string) $coupon->code));
 
             if (! in_array($coupon->type, ['percent', 'fixed'], true)) {
-                throw new \InvalidArgumentException('Tipo de desconto de cupom invÃ¡lido.');
+                throw new \InvalidArgumentException('Tipo de desconto de cupom inválido.');
             }
 
             if ((float) $coupon->value < 0) {
-                throw new \InvalidArgumentException('O valor do cupom nÃ£o pode ser negativo.');
+                throw new \InvalidArgumentException('O valor do cupom não pode ser negativo.');
             }
 
             if ($coupon->type === 'percent' && (float) $coupon->value > 100) {
-                throw new \InvalidArgumentException('O desconto percentual nÃ£o pode ser maior que 100%.');
+                throw new \InvalidArgumentException('O desconto percentual não pode ser maior que 100%.');
             }
         });
     }

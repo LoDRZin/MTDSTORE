@@ -18,10 +18,10 @@ class CouponForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('InformaÃ§Ãµes do cupom')->schema([
+            Section::make('Informações do cupom')->schema([
                 Grid::make(2)->schema([
                     TextInput::make('code')
-                        ->label('CÃ³digo')
+                        ->label('Código')
                         ->required()
                         ->maxLength(50)
                         ->unique(ignoreRecord: true)
@@ -47,7 +47,7 @@ class CouponForm
                     Toggle::make('active')->label('Cupom ativo')->default(true),
                 ]),
             ]),
-            Section::make('Limites e restriÃ§Ãµes')->schema([
+            Section::make('Limites e restrições')->schema([
                 Grid::make(2)->schema([
                     Toggle::make('is_unlimited_uses')
                         ->label('Usos ilimitados')
@@ -56,7 +56,7 @@ class CouponForm
                         ->dehydrated(false)
                         ->afterStateUpdated(fn (callable $set, bool $state) => $state ? $set('max_uses', null) : null),
                     TextInput::make('max_uses')
-                        ->label('MÃ¡ximo de usos')
+                        ->label('Máximo de usos')
                         ->numeric()
                         ->integer()
                         ->minValue(1)
@@ -69,12 +69,12 @@ class CouponForm
                         ->dehydrated(false)
                         ->afterStateUpdated(fn (callable $set, bool $state) => $state ? $set('expires_at', null) : null),
                     DateTimePicker::make('expires_at')
-                        ->label('Data de expiraÃ§Ã£o')
+                        ->label('Data de expiração')
                         ->native(false)
                         ->disabled(fn (callable $get): bool => (bool) $get('never_expires'))
                         ->required(fn (callable $get): bool => ! $get('never_expires')),
                     TextInput::make('min_purchase_amount')
-                        ->label('Valor mÃ­nimo da compra')
+                        ->label('Valor mínimo da compra')
                         ->numeric()
                         ->minValue(0)
                         ->prefix('R$'),
@@ -90,7 +90,7 @@ class CouponForm
                         ->options([
                             'mercadopago' => 'Mercado Pago',
                             'stripe' => 'Stripe',
-                            'efi' => 'EfÃ­',
+                            'efi' => 'Efí',
                             'oxapay' => 'OxaPay',
                             'wise' => 'Wise',
                         ])

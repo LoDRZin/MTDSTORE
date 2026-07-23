@@ -26,7 +26,7 @@ class Post extends Model
     {
         static::saving(function (self $post): void {
             if (! in_array($post->status, ['draft', 'published'], true)) {
-                throw new \InvalidArgumentException('Status de postagem invÃ¡lido.');
+                throw new \InvalidArgumentException('Status de postagem inválido.');
             }
         });
     }

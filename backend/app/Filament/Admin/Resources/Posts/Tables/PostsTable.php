@@ -20,7 +20,7 @@ class PostsTable
                     ->label('Capa')
                     ->circular(),
                 TextColumn::make('title')
-                    ->label('TÃ­tulo')
+                    ->label('Título')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),

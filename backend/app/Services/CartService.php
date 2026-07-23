@@ -47,7 +47,7 @@ class CartService
             $itemName = $product->name;
 
             if ($product->variants->isNotEmpty() && !$variantId) {
-                $errors[] = "Selecione uma variaÃ§Ã£o para o produto {$product->name}.";
+                $errors[] = "Selecione uma variação para o produto {$product->name}.";
                 continue;
             }
 

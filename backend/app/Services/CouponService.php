@@ -22,32 +22,32 @@ class CouponService
             ->first();
 
         if (! $coupon) {
-            throw new Exception('Cupom nÃ£o encontrado.', 404);
+            throw new Exception('Cupom não encontrado.', 404);
         }
 
         if (! $coupon->isValid()) {
-            throw new Exception('Cupom invÃ¡lido, expirado ou esgotado.', 422);
+            throw new Exception('Cupom inválido, expirado ou esgotado.', 422);
         }
 
         if ($coupon->min_purchase_amount !== null && $orderTotal < (float) $coupon->min_purchase_amount) {
-            throw new Exception('Este cupom requer um valor mÃ­nimo de compra.', 422);
+            throw new Exception('Este cupom requer um valor mínimo de compra.', 422);
         }
 
         if ($cartProductIds !== [] && ! $coupon->isApplicableToProducts($cartProductIds)) {
-            throw new Exception('Este cupom nÃ£o Ã© vÃ¡lido para os produtos selecionados.', 422);
+            throw new Exception('Este cupom não é válido para os produtos selecionados.', 422);
         }
 
         if ($cartProductIds !== [] && ! $coupon->isApplicableToCategories($cartProductIds)) {
-            throw new Exception('Este cupom nÃ£o Ã© vÃ¡lido para a categoria dos produtos selecionados.', 422);
+            throw new Exception('Este cupom não é válido para a categoria dos produtos selecionados.', 422);
         }
 
         if ($coupon->allowedUsers->isNotEmpty() && ! $coupon->allowedUsers->contains('id', $userId)) {
-            throw new Exception('Este cupom Ã© restrito a clientes especÃ­ficos.', 422);
+            throw new Exception('Este cupom é restrito a clientes específicos.', 422);
         }
 
         if ($coupon->allowed_payment_methods !== null && $coupon->allowed_payment_methods !== []) {
             if (! $paymentMethod || ! in_array($paymentMethod, $coupon->allowed_payment_methods, true)) {
-                throw new Exception('Este cupom nÃ£o Ã© vÃ¡lido para o mÃ©todo de pagamento selecionado.', 422);
+                throw new Exception('Este cupom não é válido para o método de pagamento selecionado.', 422);
             }
         }
 
@@ -69,7 +69,7 @@ class CouponService
             $lockedCoupon = Coupon::query()->lockForUpdate()->findOrFail($coupon->id);
 
             if (! $lockedCoupon->isValid()) {
-                throw new Exception('O cupom se tornou invÃ¡lido durante o pagamento.');
+                throw new Exception('O cupom se tornou inválido durante o pagamento.');
             }
 
             $lockedCoupon->increment('uses_count');
