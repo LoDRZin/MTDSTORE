@@ -141,6 +141,14 @@ class ProductForm
                                         ->label('Arquivo para Download')
                                         ->directory('downloads')
                                         ->preserveFilenames()
+                                        ->acceptedFileTypes([
+                                            'application/zip',
+                                            'application/x-rar-compressed',
+                                            'application/pdf',
+                                            'application/x-7z-compressed',
+                                        ])
+                                        ->maxSize(51200)
+                                        ->helperText('Apenas arquivos .zip, .rar, .7z ou .pdf (Até 50MB).')
                                         ->visible(fn ($get) => $get('delivery_type') === 'file_download')
                                         ->required(fn ($get) => $get('delivery_type') === 'file_download')
                                         ->columnSpanFull(),
