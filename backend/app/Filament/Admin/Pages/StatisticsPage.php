@@ -36,6 +36,8 @@ class StatisticsPage extends Dashboard
 
     protected static ?string $slug = 'statistics-page';
 
+    protected static string $routePath = '/statistics-page';
+
     protected function getHeaderActions(): array
     {
         return [
