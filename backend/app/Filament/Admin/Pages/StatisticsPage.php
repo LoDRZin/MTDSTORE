@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Filament\Pages\Page;
+use Filament\Pages\Dashboard;
 use Filament\Actions\Action;
 use App\Models\Order;
 use App\Filament\Admin\Widgets;
 
-class StatisticsPage extends Page
+class StatisticsPage extends Dashboard
 {
     public static function getNavigationIcon(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
@@ -34,7 +34,7 @@ class StatisticsPage extends Page
         return 'Estatísticas Avançadas';
     }
 
-    protected string $view = 'filament-panels::pages.dashboard';
+    protected static ?string $slug = 'statistics-page';
 
     protected function getHeaderActions(): array
     {

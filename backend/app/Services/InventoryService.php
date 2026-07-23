@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductStockItem;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
@@ -112,7 +112,7 @@ class InventoryService
         $redisKey = "product_stock_count:{$productId}" . ($variantId ? "_v{$variantId}" : "");
 
         try {
-            $count = Redis::get($redisKey);
+            $count = Cache::get($redisKey);
 
             if ($count === null) {
                 $count = $this->updateRedisCount($productId, $variantId);
@@ -168,7 +168,7 @@ class InventoryService
 
         try {
             $redisKey = "product_stock_count:{$productId}" . ($variantId ? "_v{$variantId}" : "");
-            Redis::set($redisKey, $count);
+            Cache::put($redisKey, $count);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning("Falha ao salvar no Redis em updateRedisCount: " . $e->getMessage());
             // Redis não disponível — continua sem cache

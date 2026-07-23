@@ -3,13 +3,14 @@
 namespace App\Observers;
 
 use App\Models\ProductStockItem;
+use Illuminate\Support\Facades\Cache;
 
 class ProductStockObserver
 {
     public function created(ProductStockItem $productStockItem): void
     {
         if ($productStockItem->status === 'available') {
-            \Illuminate\Support\Facades\Redis::incr("product_stock_count:{$productStockItem->product_id}");
+            Cache::increment("product_stock_count:{$productStockItem->product_id}");
         }
     }
 
@@ -20,9 +21,9 @@ class ProductStockObserver
             $newStatus = $productStockItem->status;
 
             if ($oldStatus === 'available' && $newStatus !== 'available') {
-                \Illuminate\Support\Facades\Redis::decr("product_stock_count:{$productStockItem->product_id}");
+                Cache::decrement("product_stock_count:{$productStockItem->product_id}");
             } elseif ($oldStatus !== 'available' && $newStatus === 'available') {
-                \Illuminate\Support\Facades\Redis::incr("product_stock_count:{$productStockItem->product_id}");
+                Cache::increment("product_stock_count:{$productStockItem->product_id}");
             }
         }
     }
@@ -30,7 +31,7 @@ class ProductStockObserver
     public function deleted(ProductStockItem $productStockItem): void
     {
         if ($productStockItem->status === 'available') {
-            \Illuminate\Support\Facades\Redis::decr("product_stock_count:{$productStockItem->product_id}");
+            Cache::decrement("product_stock_count:{$productStockItem->product_id}");
         }
     }
 }

@@ -4,14 +4,17 @@ namespace App\Jobs;
 
 use App\Models\Product;
 use App\Models\ProductStockItem;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ReconcileStockCounters implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct()
     {
@@ -24,20 +27,21 @@ class ReconcileStockCounters implements ShouldQueue
      */
     public function handle(): void
     {
-        $products = Product::all('id', 'name');
+        $products = Product::whereIn('delivery_type', ['keys', 'accounts'])->get();
         $corrected = 0;
 
         foreach ($products as $product) {
             $dbCount = ProductStockItem::where('product_id', $product->id)
                 ->where('status', 'available')
+                ->whereNull('variant_id')
                 ->count();
 
             $redisKey = "product_stock_count:{$product->id}";
-            $redisCount = (int) Redis::get($redisKey);
+            $redisCount = (int) Cache::get($redisKey);
 
             if ($redisCount !== $dbCount) {
                 Log::warning("ReconcileStockCounters: divergência no produto #{$product->id} ({$product->name}). Redis={$redisCount}, DB={$dbCount}. Corrigindo...");
-                Redis::set($redisKey, $dbCount);
+                Cache::put($redisKey, $dbCount);
                 $corrected++;
             }
         }

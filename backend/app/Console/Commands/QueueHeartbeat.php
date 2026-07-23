@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 
 class QueueHeartbeat extends Command
 {
@@ -12,7 +12,7 @@ class QueueHeartbeat extends Command
 
     public function handle(): int
     {
-        Redis::set('worker_heartbeat', now()->timestamp);
+        Cache::put('worker_heartbeat', now()->timestamp);
         $this->info('Heartbeat registrado: ' . now()->toDateTimeString());
 
         return self::SUCCESS;
