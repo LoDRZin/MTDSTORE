@@ -33,13 +33,13 @@ class ReviewResource extends Resource
         ])->filters([
             \Filament\Tables\Filters\SelectFilter::make('status')->options(['private' => 'Privadas', 'published' => 'Publicadas']),
         ])->actions([
-            \Filament\Tables\Actions\Action::make('publish')->label('Publicar')->color('success')
+            \Filament\Actions\Action::make('publish')->label('Publicar')->color('success')
                 ->visible(fn (Review $record) => $record->status !== 'published')
                 ->action(function (Review $record) {
                     abort_unless($record->status !== 'published', 403, 'Avaliação já está publicada.');
                     $record->update(['status' => 'published']);
                 }),
-            \Filament\Tables\Actions\Action::make('hide')->label('Tornar privada')->color('gray')
+            \Filament\Actions\Action::make('hide')->label('Tornar privada')->color('gray')
                 ->visible(fn (Review $record) => $record->status !== 'private')
                 ->action(function (Review $record) {
                     abort_unless($record->status !== 'private', 403, 'Avaliação já está privada.');
