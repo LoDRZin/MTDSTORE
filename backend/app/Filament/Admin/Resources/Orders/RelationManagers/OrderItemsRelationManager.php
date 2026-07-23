@@ -10,7 +10,7 @@ use Filament\Tables\Actions\Action;
 
 class OrderItemsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'orderItems';
+    protected static string $relationship = 'items';
 
     protected static ?string $title = 'Itens e Chaves Entregues';
 

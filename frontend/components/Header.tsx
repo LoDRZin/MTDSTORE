@@ -8,6 +8,7 @@ import Image from "next/image";
 import CartSidebar from "./CartSidebar";
 import { ShoppingCart, X, Zap, User, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import SearchBar from "./SearchBar";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -86,6 +87,11 @@ export default function Header() {
               </li>
             </ul>
           </nav>
+
+          {/* Search Bar (Desktop/Tablet) */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <SearchBar />
+          </div>
 
           {/* Actions */}
           <div className="flex items-center gap-4">
@@ -197,6 +203,11 @@ export default function Header() {
             >
               Catálogo
             </Link>
+            
+            <div className="py-6 border-b border-white/5">
+              <SearchBar />
+            </div>
+
             <Link
               href="/consultar"
               className="text-2xl font-display font-semibold border-b border-white/5 py-6 text-white hover:text-brand-500 transition-colors"
